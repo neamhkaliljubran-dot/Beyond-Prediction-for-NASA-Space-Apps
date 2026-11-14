@@ -1,0 +1,466 @@
+{
+  "frozen_utc": "2026-11-14T21:14:28+00:00",
+  "phase": "selection complete; test not yet run",
+  "regions": "regions_k3train.json (k=3, climatology 1998-2013)",
+  "validation_years": [
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019
+  ],
+  "selection_rule": "Per target: compute expanding-window validation MSE (2014-2019) for every candidate. Let 'best' have the lowest MSE. Among candidates whose mean squared-error excess over 'best' is <= 1 standard error (SE over the 6 validation years), pick the fewest parameters (ties: lower MSE). The target is 'reliable' if the selected model is not climatology/persistence, its validation MSESS vs climatology > 0.10, and it beats climatology in >= 4 of 6 validation years.",
+  "headline_rule": "Among PRIORITY targets (post-hoc from Stage F) flagged reliable, the one with the highest validation MSESS. Worked example: the test-period month of that target season with the largest |ENSO predictor|.",
+  "priority_targets_post_hoc": [
+    "R1-JJA",
+    "R2-JJA",
+    "R3-JJA",
+    "R1-SON",
+    "R2-SON",
+    "R3-SON",
+    "R3-DJF"
+  ],
+  "n_candidates_per_target": 26,
+  "choices": {
+    "R1-DJF": {
+      "region": "R1",
+      "season": "DJF",
+      "priority": false,
+      "selected": "climatology",
+      "k": 0,
+      "val_rmse": 34.74544769021049,
+      "val_msess": 0.0,
+      "years_beating_climatology": 0,
+      "best_by_mse": "climatology",
+      "reliable": false,
+      "n_validation": 18
+    },
+    "R1-MAM": {
+      "region": "R1",
+      "season": "MAM",
+      "priority": false,
+      "selected": "linear+tendency@lag0",
+      "k": 3,
+      "val_rmse": 30.10563523791639,
+      "val_msess": 0.19357400864035113,
+      "years_beating_climatology": 5,
+      "best_by_mse": "linear+tendency@lag0",
+      "reliable": true,
+      "n_validation": 18
+    },
+    "R1-JJA": {
+      "region": "R1",
+      "season": "JJA",
+      "priority": true,
+      "selected": "persistence",
+      "k": 1,
+      "val_rmse": 25.557776223261992,
+      "val_msess": 0.5312157416150878,
+      "years_beating_climatology": 5,
+      "best_by_mse": "asymmetric@lag0",
+      "reliable": false,
+      "n_validation": 18
+    },
+    "R1-SON": {
+      "region": "R1",
+      "season": "SON",
+      "priority": true,
+      "selected": "linear+persistence@lag0",
+      "k": 3,
+      "val_rmse": 52.86984559721219,
+      "val_msess": 0.5215072730026394,
+      "years_beating_climatology": 6,
+      "best_by_mse": "month-varying slope@lag0",
+      "reliable": true,
+      "n_validation": 18
+    },
+    "R2-DJF": {
+      "region": "R2",
+      "season": "DJF",
+      "priority": false,
+      "selected": "climatology",
+      "k": 0,
+      "val_rmse": 46.82273729699079,
+      "val_msess": 0.0,
+      "years_beating_climatology": 0,
+      "best_by_mse": "asymmetric@lag2",
+      "reliable": false,
+      "n_validation": 18
+    },
+    "R2-MAM": {
+      "region": "R2",
+      "season": "MAM",
+      "priority": false,
+      "selected": "climatology",
+      "k": 0,
+      "val_rmse": 43.35133665954222,
+      "val_msess": 0.0,
+      "years_beating_climatology": 0,
+      "best_by_mse": "linear+tendency@lag0",
+      "reliable": false,
+      "n_validation": 18
+    },
+    "R2-JJA": {
+      "region": "R2",
+      "season": "JJA",
+      "priority": true,
+      "selected": "persistence",
+      "k": 1,
+      "val_rmse": 49.17150117012866,
+      "val_msess": 0.06454108672344705,
+      "years_beating_climatology": 4,
+      "best_by_mse": "quadratic@lag0",
+      "reliable": false,
+      "n_validation": 18
+    },
+    "R2-SON": {
+      "region": "R2",
+      "season": "SON",
+      "priority": true,
+      "selected": "persistence",
+      "k": 1,
+      "val_rmse": 68.74424519960911,
+      "val_msess": 0.0920341939081828,
+      "years_beating_climatology": 3,
+      "best_by_mse": "month-varying slope@lag3",
+      "reliable": false,
+      "n_validation": 18
+    },
+    "R3-DJF": {
+      "region": "R3",
+      "season": "DJF",
+      "priority": true,
+      "selected": "climatology",
+      "k": 0,
+      "val_rmse": 44.12059941654135,
+      "val_msess": 0.0,
+      "years_beating_climatology": 0,
+      "best_by_mse": "month-varying slope@lag3",
+      "reliable": false,
+      "n_validation": 18
+    },
+    "R3-MAM": {
+      "region": "R3",
+      "season": "MAM",
+      "priority": false,
+      "selected": "persistence",
+      "k": 1,
+      "val_rmse": 53.18484737986027,
+      "val_msess": 0.13843324993031758,
+      "years_beating_climatology": 4,
+      "best_by_mse": "persistence",
+      "reliable": false,
+      "n_validation": 18
+    },
+    "R3-JJA": {
+      "region": "R3",
+      "season": "JJA",
+      "priority": true,
+      "selected": "persistence",
+      "k": 1,
+      "val_rmse": 68.80403988202511,
+      "val_msess": 0.2782599912020196,
+      "years_beating_climatology": 3,
+      "best_by_mse": "month-varying slope@lag0",
+      "reliable": false,
+      "n_validation": 18
+    },
+    "R3-SON": {
+      "region": "R3",
+      "season": "SON",
+      "priority": true,
+      "selected": "month-varying slope@lag0",
+      "k": 4,
+      "val_rmse": 55.08657349969636,
+      "val_msess": 0.5311946086529035,
+      "years_beating_climatology": 6,
+      "best_by_mse": "month-varying slope@lag0",
+      "reliable": true,
+      "n_validation": 18
+    }
+  },
+  "final_models": {
+    "R1-MAM": {
+      "formula": "y = a + b * x_0 + c * (x_0 - x_3)",
+      "coefficients": {
+        "a": {
+          "value": -3.389181281180967,
+          "ci95": [
+            -9.629670042931743,
+            5.4429371447125074
+          ],
+          "units": "mm/month",
+          "value_fit_1998_2013": -5.860125856598767
+        },
+        "b": {
+          "value": -18.31333701911766,
+          "ci95": [
+            -24.91074757194596,
+            -3.249252639251411
+          ],
+          "units": "mm/month per degC",
+          "value_fit_1998_2013": -17.963387091781904
+        },
+        "c": {
+          "value": -15.502488066818644,
+          "ci95": [
+            -27.651476597998233,
+            0.9358112202765325
+          ],
+          "units": "mm/month per degC",
+          "value_fit_1998_2013": -14.099375043139922
+        }
+      },
+      "fit_period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "n_fit": 66,
+      "in_sample_r2": 0.11277154014200896,
+      "in_sample_rmse": 30.082138176267986,
+      "residual_lag1_acf": -0.07600740251192387,
+      "climatology_mm_month": {
+        "3": 321.239,
+        "4": 297.573,
+        "5": 226.61
+      }
+    },
+    "R1-JJA": {
+      "formula": "y = phi * y(t-1)",
+      "coefficients": {
+        "phi": {
+          "value": 0.6544543714289552,
+          "ci95": [
+            0.27190318020518833,
+            0.9016623565588995
+          ],
+          "units": "dimensionless",
+          "value_fit_1998_2013": 0.6240175883506938
+        }
+      },
+      "fit_period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "n_fit": 66,
+      "in_sample_r2": 0.33985448528024986,
+      "in_sample_rmse": 35.15587660321969,
+      "residual_lag1_acf": -0.1846218898975654,
+      "climatology_mm_month": {
+        "6": 180.986,
+        "7": 144.866,
+        "8": 126.178
+      }
+    },
+    "R1-SON": {
+      "formula": "y = a + b * x_0 + phi * y(t-1)",
+      "coefficients": {
+        "a": {
+          "value": -2.9659094498591014,
+          "ci95": [
+            -12.613201074797015,
+            8.319243848317411
+          ],
+          "units": "mm/month",
+          "value_fit_1998_2013": -4.84798917364993
+        },
+        "b": {
+          "value": -24.43820520483152,
+          "ci95": [
+            -58.99774551269084,
+            -7.030451821061857
+          ],
+          "units": "mm/month per degC",
+          "value_fit_1998_2013": -19.424330578897916
+        },
+        "phi": {
+          "value": 0.4060466990886337,
+          "ci95": [
+            -0.159535384007017,
+            0.6974769168615484
+          ],
+          "units": "dimensionless",
+          "value_fit_1998_2013": 0.4609158289733593
+        }
+      },
+      "fit_period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "n_fit": 66,
+      "in_sample_r2": 0.5128720409073759,
+      "in_sample_rmse": 43.617046215983095,
+      "residual_lag1_acf": 0.0013037693070080943,
+      "climatology_mm_month": {
+        "9": 144.641,
+        "10": 203.067,
+        "11": 273.821
+      }
+    },
+    "R2-JJA": {
+      "formula": "y = phi * y(t-1)",
+      "coefficients": {
+        "phi": {
+          "value": 0.3769297474553982,
+          "ci95": [
+            -0.14000417731150303,
+            0.68800411946815
+          ],
+          "units": "dimensionless",
+          "value_fit_1998_2013": 0.40018027957661856
+        }
+      },
+      "fit_period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "n_fit": 66,
+      "in_sample_r2": 0.09446587240740789,
+      "in_sample_rmse": 53.811871951798864,
+      "residual_lag1_acf": -0.033334069918752665,
+      "climatology_mm_month": {
+        "6": 200.25,
+        "7": 188.663,
+        "8": 215.756
+      }
+    },
+    "R2-SON": {
+      "formula": "y = phi * y(t-1)",
+      "coefficients": {
+        "phi": {
+          "value": 0.23386195603095017,
+          "ci95": [
+            0.04458630417460463,
+            0.36586870530987986
+          ],
+          "units": "dimensionless",
+          "value_fit_1998_2013": 0.17031920162310762
+        }
+      },
+      "fit_period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "n_fit": 66,
+      "in_sample_r2": 0.07613466838651428,
+      "in_sample_rmse": 50.987186118783065,
+      "residual_lag1_acf": -0.10321667888420594,
+      "climatology_mm_month": {
+        "9": 249.785,
+        "10": 315.354,
+        "11": 338.457
+      }
+    },
+    "R3-MAM": {
+      "formula": "y = phi * y(t-1)",
+      "coefficients": {
+        "phi": {
+          "value": 0.3554943543216797,
+          "ci95": [
+            0.14315900826496414,
+            0.6700447755267372
+          ],
+          "units": "dimensionless",
+          "value_fit_1998_2013": 0.2028609838761678
+        }
+      },
+      "fit_period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "n_fit": 66,
+      "in_sample_r2": 0.0923188037691065,
+      "in_sample_rmse": 42.38946379237847,
+      "residual_lag1_acf": 0.018501538475652064,
+      "climatology_mm_month": {
+        "3": 299.201,
+        "4": 296.57,
+        "5": 303.436
+      }
+    },
+    "R3-JJA": {
+      "formula": "y = phi * y(t-1)",
+      "coefficients": {
+        "phi": {
+          "value": 0.5730883680322812,
+          "ci95": [
+            0.40581040536592716,
+            0.7666634970194756
+          ],
+          "units": "dimensionless",
+          "value_fit_1998_2013": 0.5694264912293063
+        }
+      },
+      "fit_period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "n_fit": 66,
+      "in_sample_r2": 0.22755426698316916,
+      "in_sample_rmse": 69.58898755994551,
+      "residual_lag1_acf": -0.10905888932828478,
+      "climatology_mm_month": {
+        "6": 324.967,
+        "7": 289.759,
+        "8": 247.349
+      }
+    },
+    "R3-SON": {
+      "formula": "y = a + sum_m b_m * 1[m] * x_0  (m in [9, 10, 11])",
+      "coefficients": {
+        "a": {
+          "value": -5.724663787125246,
+          "ci95": [
+            -15.02737387834677,
+            6.510074329434386
+          ],
+          "units": "mm/month",
+          "value_fit_1998_2013": -10.78866220340781
+        },
+        "b_m9": {
+          "value": -59.64496648186664,
+          "ci95": [
+            -80.4983602035219,
+            -28.679826650500846
+          ],
+          "units": "mm/month per degC",
+          "value_fit_1998_2013": -43.846460518496464
+        },
+        "b_m10": {
+          "value": -65.47067221202646,
+          "ci95": [
+            -86.80817188342229,
+            -49.89475747157137
+          ],
+          "units": "mm/month per degC",
+          "value_fit_1998_2013": -65.02291990406502
+        },
+        "b_m11": {
+          "value": -21.675626393525803,
+          "ci95": [
+            -31.781794203767856,
+            -12.153767472244105
+          ],
+          "units": "mm/month per degC",
+          "value_fit_1998_2013": -25.551134735624373
+        }
+      },
+      "fit_period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "n_fit": 66,
+      "in_sample_r2": 0.505520702802952,
+      "in_sample_rmse": 44.57546483098682,
+      "residual_lag1_acf": -0.16038075772323376,
+      "climatology_mm_month": {
+        "9": 237.651,
+        "10": 218.155,
+        "11": 222.484
+      }
+    }
+  },
+  "headline": "R3-SON",
+  "validation_table_sha256": "035a1a15e6fc5fcbe0dc640922dca3b1f59f6e054f1ff5ac0c1274b6be283954"
+}
