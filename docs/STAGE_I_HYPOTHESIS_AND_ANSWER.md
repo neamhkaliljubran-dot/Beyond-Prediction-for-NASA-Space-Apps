@@ -77,7 +77,7 @@ Script: `scripts/run_hypothesis_test.py`. The specification and decision rule ar
   - R2 in DJF turns positive in recent windows; that is inconclusive.
 - **Recurring and divergent patterns:**
   - June–November recurs in every region.
-  - The clearest divergence is spatial: in DJF the east (R3) carries the ENSO link and decouples from the north-west.
+  - The clearest divergence is spatial: in DJF only the east (R3) has a statistically supported ENSO association (R1 and R2 are inconclusive, which is not proof of no relationship).
   - The direct test of that DJF difference is suggestive but **not significant** under the pre-stated rule.
 - **Mathematical relationship:** for R3 in Sep–Nov, ΔP = a + b_m·RONI has held-out skill of 0.59 against climatology. A simpler one-slope model scored 0.64. It is a concurrent statistical relationship, not a forecast or a physical law.
 - **Network:** G-NETS, a proposed framework, organises these associations as a network that changes with season, lag and window. It describes association only; it shows neither causation nor topological invariants.

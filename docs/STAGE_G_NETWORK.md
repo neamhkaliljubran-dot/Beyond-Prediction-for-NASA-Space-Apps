@@ -39,7 +39,7 @@ All supported ENSO edges are negative: less rain when RONI is high.
 - R1–R2 DJF: r = 0.54; R1–R3 DJF: r = 0.42.
 - In JJA and SON all three region pairs are strongly linked (r = 0.59–0.84, recurring).
 
-So in the wet season the eastern region decouples from the north-west, both in its rainfall and in its ENSO link.
+So in the wet season R3 is the only region with a supported ENSO edge, and no co-variation between R2 and R3 rainfall is detected. This is an observed pattern: the direct Stage I test of the R3 vs R1/R2 coefficient difference is not significant, and an inconclusive edge is not evidence of no relationship.
 
 **4. The only hint of change over time is inconclusive.** For ENSO→R2 in DJF at lag 0:
 - r is −0.11 in 1998–2008 and between +0.25 and +0.29 in the four latest windows (2006–2016 to 2009–2019), where the CI excludes 0.

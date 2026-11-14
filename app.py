@@ -84,6 +84,14 @@ index_choice = st.selectbox(
     help="Per NWS Public Information Statement 26-05, NOAA CPC uses RONI for official ENSO "
          "monitoring. ONI is kept as a sensitivity check.")
 run = st.button("Run Analysis", type="primary")
+with st.expander("Demo guide (for judges)"):
+    st.markdown("1. Press **Run Analysis** — all results load from cached, versioned files (no live NASA download).\n"
+                "2. Read **Answer to the scientific question** (nature, location, direction, magnitude).\n"
+                "3. Tab **1 · Candidate hypothesis** → **TEST HYPOTHESIS**: switch the data block (discovery, held-out, "
+                "sensitivity) and watch the contrasts and decision update.\n"
+                "4. Tab **2 · Discovered relationship** → **TEST EQUATION**: pick a held-out month (e.g. 2023-10, El Niño) "
+                "and see RONI substituted into the frozen equation and compared with the IMERG observation.\n"
+                "5. Tab **3 · Dynamic network**: change season, lag and time window; edges are computed correlations.")
 if run:
     st.session_state["ran"] = True
 if question.strip() != QUESTION:
@@ -115,6 +123,72 @@ if st.session_state.get("ran"):
     for i, (label, done) in enumerate(steps, 1):
         st.markdown(f"{'✅' if done else '⏳'} **Step {i}.** {label} — "
                     f"{'complete' if done else '*pending: not yet computed*'}")
+
+    # ------------------------------------------------------------ integrated answer
+    hyp_i = read_json(RESULTS / "stage_i_hypothesis.json")
+    tst_i = read_json(RESULTS / "stage_h_test.json")
+    if hyp_i and tst_i and (RESULTS / "network_patterns.csv").exists():
+        st.divider()
+        st.subheader("Answer to the scientific question")
+        st.markdown(f"*{QUESTION}*")
+        pat = pd.read_csv(RESULTS / "network_patterns.csv")
+        ee = pd.read_csv(RESULTS / "network_edges.csv")
+        prim_i = pd.read_csv(RESULTS / "associations_primary.csv")
+        halves_i = pd.read_csv(RESULTS / "halves.csv")
+        full0 = ee[(ee.kind == "ENSO-region") & (ee.window == gnet.FULL) & (ee.lag == 0)]
+        sup = {s: ", ".join(full0[(full0.season == s) & (full0.status == "supported")].target) or "none"
+               for s in ["DJF", "MAM", "JJA", "SON"]}
+        n_sup = int((ee[(ee.kind == "ENSO-region") & (ee.window == gnet.FULL)].status == "supported").sum())
+        pc = pat[pat.kind == "ENSO-region"].pattern.value_counts()
+        r3 = pd.DataFrame(tst_i["results"]).set_index("target").loc["R3-SON"]
+        A = hyp_i["A_primary_in_sample"]["contrasts"]
+        js = prim_i[(prim_i.lag == 0) & prim_i.season.isin(["JJA", "SON"])]
+        r3d = prim_i[(prim_i.lag == 0) & (prim_i.season == "DJF") & (prim_i.region == "R3")].iloc[0]
+        sup_pos = int(((prim_i.q_bh_surrogate < 0.05) & (prim_i.r > 0)).sum())
+        hw = (halves_i.delta_ci_hi - halves_i.delta_ci_lo) / 2
+        n_change = int(((halves_i.delta_ci_lo > 0) | (halves_i.delta_ci_hi < 0)).sum())
+        cols = st.columns(2)
+        cols[0].markdown(f"""
+**1 · Nature of change**
+
+The relationship changes mainly **with the season**, not over the years. Associations that pass correction
+(lag 0, BH q < 0.05): DJF {sup['DJF']} · MAM {sup['MAM']} · JJA {sup['JJA']} · SON {sup['SON']}.
+Over 1998–2019, {pc.get('recurring', 0)} of 48 ENSO→region edges are *recurring* (same sign in all twelve 11-year
+windows, CI excluding 0 in ≥ 9) and {pc.get('divergent', 0)} are divergent; {n_change} of 48 early-vs-late comparisons show a detectable change.
+*No detectable change ≠ proof of stability.*
+""")
+        cols[1].markdown(f"""
+**2 · Location of change**
+
+In Jun–Nov all three regions show supported associations. In DJF only **R3 (eastern Indonesia)** has a supported
+association; R1 and R2 are inconclusive (not evidence of no relationship). The **direct test** of whether R3's DJF
+coefficient differs from R1/R2 is **not significant** (Holm p = {A['R3-R1']['p_holm_surrogate']:.4f} and
+{A['R3-R2']['p_holm_surrogate']:.4f}), so the east–west contrast is an **observed pattern, not a confirmed difference**.
+""")
+        cols = st.columns(2)
+        cols[0].markdown(f"""
+**3 · Direction of change**
+
+All {n_sup} statistically supported ENSO→rainfall associations are **negative**: higher RONI (El Niño-like) goes with
+**less** rain, lower RONI (La Niña-like) with more. {sup_pos} supported associations are positive. The only
+positive hint (R2 in DJF in recent windows) is inconclusive.
+""")
+        cols[1].markdown(f"""
+**4 · Magnitude of change**
+
+Jun–Nov, lag 0: **{js.slope_mm_per_degC.max():.0f} to {js.slope_mm_per_degC.min():.0f} mm/month per °C** of RONI
+(r {js.r.max():.2f} to {js.r.min():.2f}); R3 in DJF: {r3d.slope_mm_per_degC:.0f} mm/month per °C. The held-out-tested
+R3 Sep–Nov equation cut error from {r3.rmse_climatology:.1f} to {r3.rmse_selected:.1f} mm/month (skill
+{r3.msess_selected:.2f}; simpler one-slope model {r3.msess_linear_lag0:.2f}). The 95% CIs for early-vs-late
+changes in r span about ±{hw.min():.2f} to ±{hw.max():.2f}, so smaller changes cannot be detected with this record.
+""")
+        st.markdown(
+            "**Recurring or divergent patterns in the network:** the Jun–Nov pattern recurs in every region and window. "
+            "The main divergence is *between regions in DJF* — an observed pattern whose direct test is suggestive "
+            "but not significant. **Evidence labels:** all numbers are COMPUTATIONAL RESULTS from IMERG V07B and NOAA "
+            "CPC RONI; agreement with PUBLISHED KNOWLEDGE (El Niño dries much of Indonesia in Jun–Nov) is noted; "
+            "INDEPENDENT VALIDATION with other rainfall data (CHIRPS, BMKG gauges) has **not yet been performed**. "
+            "Associations are not causation.")
 
     # ------------------------------------------------------------ outputs
     st.divider()
@@ -338,53 +412,6 @@ if st.session_state.get("ran"):
                        "excludes 0 with opposite signs in different windows; sign-variable = sign changes "
                        "without that (inconclusive). An inconclusive or absent edge is not evidence of no "
                        "relationship.")
-
-    # ------------------------------------------------------------ integrated answer
-    hyp_i = read_json(RESULTS / "stage_i_hypothesis.json")
-    tst_i = read_json(RESULTS / "stage_h_test.json")
-    if hyp_i and tst_i and (RESULTS / "network_patterns.csv").exists():
-        st.divider()
-        st.subheader("Integrated scientific answer")
-        st.markdown(f"*{QUESTION}*")
-        pat = pd.read_csv(RESULTS / "network_patterns.csv")
-        ee = pd.read_csv(RESULTS / "network_edges.csv")
-        full0 = ee[(ee.kind == "ENSO-region") & (ee.window == gnet.FULL) & (ee.lag == 0)]
-        sup = {s: ", ".join(full0[(full0.season == s) & (full0.status == "supported")].target) or "none"
-               for s in ["DJF", "MAM", "JJA", "SON"]}
-        pc = pat[pat.kind == "ENSO-region"].pattern.value_counts()
-        r3 = pd.DataFrame(tst_i["results"]).set_index("target").loc["R3-SON"]
-        A = hyp_i["A_primary_in_sample"]["contrasts"]
-        st.markdown(f"""
-**Across seasons — COMPUTATIONAL RESULT (1998–2019).** ENSO–rainfall associations are strongly seasonal.
-Regions with a statistically supported association at lag 0 (BH q < 0.05): DJF: {sup['DJF']} · MAM: {sup['MAM']} ·
-JJA: {sup['JJA']} · SON: {sup['SON']}. Every supported association is negative — less rain when RONI is high
-(El Niño-like), more when it is low (La Niña-like). This agrees with PUBLISHED KNOWLEDGE that El Niño dries much
-of Indonesia mainly in the dry and transition seasons.
-
-**Over time — COMPUTATIONAL RESULT, exploratory.** Across twelve overlapping 11-year windows, {pc.get('recurring', 0)} of
-48 ENSO→region edges are *recurring*, {pc.get('weak-recurring', 0)} weak-recurring, {pc.get('sign-variable', 0)}
-sign-variable (inconclusive) and {pc.get('divergent', 0)} divergent. No relationship showed a detectable change
-between 1998–2008 and 2009–2019, but 22 years can only detect large changes. The one hint of change (R2 in DJF
-turning positive in recent windows) is inconclusive.
-
-**Recurring or divergent patterns in the network.** The June–November pattern recurs in every region and window.
-The clearest divergence is *spatial*, not temporal: in DJF only eastern Indonesia (R3) carries an ENSO edge, and its
-rainfall decouples from the north-west (R2–R3 r ≈ 0.04).
-
-**Mathematical relationship — COMPUTATIONAL RESULT, held-out tested.** For R3 in Sep–Nov, the frozen equation
-ΔP = a + b_m·RONI reached a test skill of {r3.msess_selected:.2f} vs climatology (RMSE {r3.rmse_selected:.1f} vs
-{r3.rmse_climatology:.1f} mm/month); the simpler one-slope model scored {r3.msess_linear_lag0:.2f}, so the
-month-specific slopes are not shown to add value. It is a concurrent statistical relationship, not a forecast or law.
-
-**CANDIDATE HYPOTHESIS — DJF east–west difference.** Direct contrasts β_R3 − β_R1 = {A['R3-R1']['delta_beta']:+.1f}
-and β_R3 − β_R2 = {A['R3-R2']['delta_beta']:+.1f} mm/month per °C point in the expected direction with bootstrap CIs
-excluding 0, but the primary persistence-aware test gives Holm p = {A['R3-R1']['p_holm_surrogate']:.3f} and
-{A['R3-R2']['p_holm_surrogate']:.3f}: **not supported at α = 0.05**. The difference remains a candidate for testing
-with independent rainfall data.
-
-**INDEPENDENT VALIDATION — not yet performed.** All tests use IMERG; held-out months are temporal checks within the
-same product. Proposed: CHIRPS and BMKG gauge records, and the IOD as a co-driver (partly examined).
-""")
 
     # ------------------------------------------------------------ evidence
     st.divider()

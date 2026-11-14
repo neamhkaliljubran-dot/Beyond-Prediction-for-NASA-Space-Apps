@@ -26,11 +26,11 @@ hypothesis, a fitted equation or a validated result.
 
 All six have BH q < 0.05, and both inference methods agree.
 
-**O2. December–February: only the eastern region R3 shows an association.**
+**O2. December–February: only the eastern region R3 shows a statistically supported association.** (This does not by itself show that R3 differs from R1/R2; see the direct test in Stage I.)
 - R3 DJF: r between −0.43 and −0.36 across lags 0–3; q ≤ 0.036 with surrogates.
 - R1 and R2 in DJF: |r| ≤ 0.10 with CIs that include 0.
 
-**O3. March–May: no association survives correction** in any region (largest |r| = 0.25, R3 lag 0, q = 0.37).
+**O3. March–May: no association survives correction** (not evidence that none exists) in any region (largest |r| = 0.25, R3 lag 0, q = 0.37).
 
 **O4. Lag structure.**
 - In SON, |r| changes little from lag 0 to lag 3, while the slope grows (R1: −46 to −65 mm/month per °C), because ENSO values earlier in the year are smaller.

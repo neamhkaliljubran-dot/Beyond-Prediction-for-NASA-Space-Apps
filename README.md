@@ -21,11 +21,12 @@ investigational framework**, not an established theory.
 | Stage I candidate hypothesis (direct between-region test), verification panels, integrated answer | done (`docs/STAGE_I_HYPOTHESIS_AND_ANSWER.md`) |
 | Streamlit app shell with workflow, outputs, evidence, provenance | done (`app.py`) |
 
-## Run
+## Run the demo
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
+The app uses only cached results. To publish it, see `DEPLOY.md`. To rebuild the data or run the tests, install `requirements-pipeline.txt`.
 
 ## Rebuild data
 ```bash
@@ -58,5 +59,6 @@ See `IMPLEMENTATION_STATUS.md` for the detailed stage log.
 
 ## Tests
 ```bash
+pip install -r requirements-pipeline.txt
 python -m pytest -q
 ```

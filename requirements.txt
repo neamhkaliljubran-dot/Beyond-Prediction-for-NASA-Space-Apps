@@ -1,11 +1,5 @@
-streamlit>=1.40
-pandas>=2.2
-numpy>=1.26
-plotly>=5.24
-requests>=2.32
-h5py>=3.11
-pytest>=8
-matplotlib>=3.8
-shapely>=2.0
-pyshp>=2.3
-scikit-learn>=1.4
+# Live demo app only (all results are cached in the repository).
+streamlit==1.67.0
+pandas==3.0.5
+numpy==2.5.3
+plotly==7.1.0
