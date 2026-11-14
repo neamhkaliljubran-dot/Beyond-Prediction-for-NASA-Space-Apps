@@ -19,8 +19,9 @@ data pipeline uses `requirements-pipeline.txt`.
 If the repository is private, Streamlit asks for permission to read private repositories during
 sign-in. The deployed app itself is public unless you restrict viewers in the app settings.
 
-The Cosmic Blue theme comes from `.streamlit/config.toml`, and the optional music file from
-`assets/audio/`. Both are in the repository, so nothing else needs configuring.
+The Cosmic Blue theme and static file serving come from `.streamlit/config.toml`; the music file is
+`static/swan.mp3` (served at `/app/static/swan.mp3`). Both are in the repository, so nothing else needs configuring.
+Browsers may block automatic music start (notably Safari); visitors can then press play on the small player.
 
 ## Local fallback (for example, if the venue Wi-Fi fails)
 ```bash

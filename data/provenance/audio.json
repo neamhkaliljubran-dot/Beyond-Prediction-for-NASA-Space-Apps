@@ -1,0 +1,23 @@
+{
+  "title": "Camille Saint-Saëns — Le Cygne (The Swan, No. 13)",
+  "performers": "Matilda Colliard (cello), Stefano Ligoratti (piano)",
+  "publisher": "Classica Viva, Milan",
+  "recorded": "2015-07-14",
+  "licence": "CC BY 4.0",
+  "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+  "source_page": "https://commons.wikimedia.org/wiki/File:Camille_Saint-Sa%C3%ABns_-_Le_Cygne_(No._13)_-_Matilda_Colliard_and_Stefano_Ligoratti.ogg",
+  "original_file": {
+    "format": "Ogg",
+    "bytes": 2142844,
+    "sha1": "1a1ae7f6c2165af0425d55ce3785b7e1391d8783"
+  },
+  "stored_file": {
+    "path": "static/swan.mp3",
+    "format": "MP3 transcode provided by Wikimedia Commons",
+    "bytes": 3844718,
+    "sha256": "f48421b522b25be6210e47cc9161471ddd4b502cceb6a3c765ef489c0fe25b93",
+    "duration_s": 158.09
+  },
+  "licence_verified_via": "Wikimedia Commons API extmetadata (LicenseShortName = CC BY 4.0, AttributionRequired = true)",
+  "use": "complete recording, played once (no loop), never trimmed"
+}

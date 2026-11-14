@@ -74,16 +74,23 @@ def test_app_verification_panels_respond():
     assert not at.exception
 
 
-def test_presentation_graphics_present():
+def test_presentation_journey_and_text():
     from streamlit.testing.v1 import AppTest
 
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=120).run()
+    landing = " ".join(m.value for m in at.markdown)
+    assert "<h1>Meta Prediction</h1>" in landing
+    assert "An Earth System Hypothesis Discovery Engine" in landing
+    assert at.button[0].label.startswith("How do relationships between ENSO variability")
     at.button[0].click().run()
     assert not at.exception
-    keys = {el.proto.id for el in at.get("plotly_chart")}
+    heads = [h.value for h in at.subheader]
+    order = ["The hypothesis — and its honest test", "The equation — discovered, frozen and tested",
+             "What the real data show", "The dynamic scientific network", "Four scientific answers"]
+    pos = [next(i for i, h in enumerate(heads) if h == s) for s in order]
+    assert pos == sorted(pos), heads
+    md = " ".join(m.value for m in at.markdown)
+    assert "“The universe whispers in patterns. Discovery begins when we learn to listen.”" in md
+    assert "PYRAMID" not in md.upper().replace("PYRAMID_", "")
+    assert "CC BY 4.0" in md and "Matilda" in md
     assert len(at.get("plotly_chart")) >= 10
-    heads = " ".join(h.value for h in at.subheader)
-    for s in ["Four scientific answers", "Candidate hypothesis and its test", "Mathematical equation",
-              "Dynamic relationship network", "Integrated scientific interpretation"]:
-        assert s in heads, s
-    assert keys

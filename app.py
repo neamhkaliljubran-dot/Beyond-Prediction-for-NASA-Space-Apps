@@ -14,11 +14,12 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+import streamlit.components.v1 as components
 
 from beyond_prediction import enso
 from beyond_prediction import network as gnet
 from beyond_prediction.provenance import DATA, read_json
-from beyond_prediction.visuals import PYRAMID_HTML, walker_schematic
+from beyond_prediction.visuals import concept_network_svg, starfield_html
 
 st.set_page_config(page_title="Beyond Prediction · Team Hypatia", layout="wide")
 
@@ -48,68 +49,76 @@ def load_enso() -> pd.DataFrame:
     return df
 
 
-# ---------------------------------------------------------------- header
+# ---------------------------------------------------------------- landing
+ran = bool(st.session_state.get("ran"))
+st.markdown(starfield_html(), unsafe_allow_html=True)
 st.markdown("""<style>
-[data-testid="stMainBlockContainer"], .block-container {max-width: 1120px; padding-top: 2.2rem;}
-h2, h3 {font-weight: 500; letter-spacing: .01em;}
-.bp-hero {background: radial-gradient(1px 1px at 8% 22%, rgba(233,242,255,0.8), transparent), radial-gradient(1px 1px at 17% 64%, rgba(233,242,255,0.5), transparent), radial-gradient(1px 1px at 26% 35%, rgba(233,242,255,0.7), transparent), radial-gradient(1px 1px at 34% 80%, rgba(233,242,255,0.4), transparent), radial-gradient(1px 1px at 43% 15%, rgba(233,242,255,0.6), transparent), radial-gradient(1px 1px at 52% 58%, rgba(233,242,255,0.5), transparent), radial-gradient(1px 1px at 61% 28%, rgba(233,242,255,0.8), transparent), radial-gradient(1px 1px at 69% 74%, rgba(233,242,255,0.4), transparent), radial-gradient(1px 1px at 77% 40%, rgba(233,242,255,0.6), transparent), radial-gradient(1px 1px at 85% 18%, rgba(233,242,255,0.7), transparent), radial-gradient(1px 1px at 92% 62%, rgba(233,242,255,0.5), transparent), radial-gradient(1px 1px at 13% 88%, rgba(233,242,255,0.4), transparent), radial-gradient(1px 1px at 57% 90%, rgba(233,242,255,0.4), transparent), radial-gradient(1px 1px at 97% 35%, rgba(233,242,255,0.6), transparent), linear-gradient(180deg, #0A1C33 0%, #071426 100%);
-  border: 1px solid rgba(87,185,245,.18); border-radius: 16px; padding: 56px 24px 40px; text-align: center;
-  margin-bottom: 1.6rem;}
-.bp-hero h1 {letter-spacing: .16em; font-weight: 600; color: #E9F2FF; margin: 0 0 .5rem 0; font-size: 2.4rem;}
-.bp-hero .sub {color: #57B9F5; font-size: 1.15rem; margin: 0 0 .4rem 0;}
-.bp-hero .meta {color: #A9BBD6; font-size: .95rem; margin: 0;}
-</style>
-<div class="bp-hero"><h1>PYRAMID PRODUCTION</h1>
-<p class="sub"><b>Beyond Prediction</b> — an evidence-grounded hypothesis discovery engine for Earth &amp; space data</p>
-<p class="meta">Team Hypatia · NASA Space Apps 2026 · <i>Be An Earth System Trend Detective</i></p></div>""",
+.stApp {background: radial-gradient(1200px 760px at 50% -8%, #10294A 0%, #071426 55%, #050E1C 100%) fixed;}
+[data-testid="stHeader"] {background: transparent;}
+[data-testid="stMainBlockContainer"], .block-container {max-width: 1060px; padding-top: 1.2rem; position: relative; z-index: 1;}
+h2, h3 {font-weight: 400 !important; letter-spacing: .03em;}
+[data-testid="stPlotlyChart"], [data-testid="stDataFrame"], [data-testid="stExpander"] details {
+  background: rgba(6, 16, 32, .84); border: 1px solid rgba(87, 185, 245, .12); border-radius: 14px;}
+[data-testid="stPlotlyChart"] {padding: 8px 6px;}
+[data-testid="stMarkdownContainer"] p, [data-testid="stMarkdownContainer"] li {line-height: 1.7;}
+.bp-hero {text-align: center; margin: 6vh 0 .2rem 0;}
+.bp-hero h1 {font-size: clamp(2.7rem, 6.4vw, 4.6rem); font-weight: 300; letter-spacing: .14em; margin: 0; padding: 0;
+  background: linear-gradient(90deg, #E9F2FF 0%, #9FD8FF 55%, #B9B0F0 100%); -webkit-background-clip: text;
+  background-clip: text; color: transparent;}
+.bp-hero .sub {color: #A9C8E8; font-size: clamp(1rem, 1.9vw, 1.25rem); letter-spacing: .1em; margin: .6rem 0 0 0;}
+.bp-caption {text-align: center; color: #6F86A6; font-size: .8rem; letter-spacing: .06em; margin: -.4rem 0 1.4rem 0;}
+.bp-credit {text-align: center; color: #7F95B5; font-size: .85rem; letter-spacing: .08em; margin-top: 1.2rem;}
+.bp-quote {text-align: center; font-size: clamp(1.4rem, 2.8vw, 2rem); font-weight: 300; line-height: 1.6; color: #E9F2FF;
+  letter-spacing: .02em; margin: 7vh auto 2vh auto; max-width: 820px; animation: bp-fade 1.6s ease both;}
+.bp-foot {text-align: center; color: #6F86A6; font-size: .78rem; line-height: 1.6; margin: 5vh auto 2vh auto; max-width: 860px;}
+.bp-foot a {color: #8FB8DD;}
+@keyframes bp-fade {from {opacity: 0; transform: translateY(14px)} to {opacity: 1; transform: none}}
+@keyframes bp-float {0%, 100% {transform: translateY(0)} 50% {transform: translateY(-10px)}}
+.st-key-question_box {display: flex; justify-content: center;}
+.st-key-question_box button {max-width: 760px; min-height: 0; padding: 22px 34px; border-radius: 20px;
+  background: rgba(120, 132, 150, .30); border: 1px solid rgba(233, 242, 255, .28); color: #E9F2FF;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, .40); backdrop-filter: blur(3px);
+  animation: bp-float 6.5s ease-in-out infinite; transition: background .9s ease, border-color .9s ease, box-shadow .9s ease;}
+.st-key-question_box button p {font-size: 1.12rem; line-height: 1.6; white-space: normal; font-weight: 400;}
+.st-key-question_box button:hover {border-color: #57B9F5; color: #FFFFFF; animation-play-state: paused;}
+</style>""", unsafe_allow_html=True)
+st.markdown("<div class='bp-hero'><h1>Meta Prediction</h1>"
+            "<p class='sub'>An Earth System Hypothesis Discovery Engine</p></div>", unsafe_allow_html=True)
+st.markdown(concept_network_svg(), unsafe_allow_html=True)
+st.markdown("<p class='bp-caption'>Conceptual illustration of an interconnected Earth system — not data</p>",
             unsafe_allow_html=True)
-
-st.markdown(
-    "Earth's climate is a connected system: sea-surface temperatures in the tropical Pacific "
-    "reorganise where the atmosphere rises and sinks, which shifts rainfall thousands of "
-    "kilometres away. Rather than forecasting a single number, this prototype analyses real "
-    "observations to find **how such relationships behave and change**, then turns what it finds "
-    "into **candidate, testable hypotheses**. Results are labelled by type: observed data, "
-    "published findings, computed results, and hypotheses. Associations are never presented "
-    "as causation.")
-
-c1, c2 = st.columns([3, 2])
-with c1:
-    state = st.radio("Schematic state", ["Neutral / La Niña-like", "El Niño"], horizontal=True)
-    svg, cap = walker_schematic("elnino" if state == "El Niño" else "neutral")
-    st.markdown(svg, unsafe_allow_html=True)
-    st.caption(cap + " Other drivers — notably the Indian Ocean Dipole, the Asian–Australian "
-               "monsoon and the Madden–Julian Oscillation — also shape Indonesian rainfall.")
-with c2:
-    st.markdown(PYRAMID_HTML, unsafe_allow_html=True)
-
-AUDIO = Path(__file__).parent / "assets" / "audio" / "bach_prelude_c_bwv846_synth.wav"
-if AUDIO.exists():
-    with st.expander("♪ Optional music — off until you press play"):
-        st.audio(str(AUDIO), format="audio/wav")
-        st.caption("J. S. Bach, Prelude in C major, BWV 846 (bars 1–8). Public-domain composition; original "
-                   "synthesised recording generated by scripts/make_music.py. Use the player for play, pause and volume.")
-
-# ---------------------------------------------------------------- question
-st.divider()
-st.subheader("Scientific question")
-question = st.text_area("Question", QUESTION, height=90, label_visibility="collapsed")
-run = st.button("Run Analysis", type="primary")
-with st.expander("Demo guide (for judges)"):
-    st.markdown("1. Press **Run Analysis** — results load from cached, versioned files (no live NASA download).\n"
-                "2. **Four scientific answers**: nature, location, direction and magnitude of change.\n"
-                "3. **Hypothesis + test**: switch the data block and watch the contrasts and decision update.\n"
-                "4. **Equation + test**: pick a held-out month (e.g. 2023-10, El Niño) — RONI is substituted into the "
-                "frozen equation and compared with the IMERG observation; graphs follow.\n"
-                "5. **Dynamic network**: change season, lag and time window; every edge is a computed correlation.\n"
-                "6. **Integrated interpretation** and the closing quote.")
-if run:
+if st.button(QUESTION, key="question_box"):
     st.session_state["ran"] = True
-if question.strip() != QUESTION:
-    st.info("This prototype's pipeline is built for the fixed demonstration question above; "
-            "edited questions are not parsed.")
+    ran = True
+if ran:
+    st.markdown("""<style>.st-key-question_box button {background: #000000 !important; animation: none !important;
+      border-color: rgba(87, 185, 245, .55) !important; box-shadow: 0 0 0 1px rgba(87,185,245,.15), 0 18px 50px rgba(0,0,0,.6) !important;}
+      [data-testid="stMainBlockContainer"] [data-testid="stElementContainer"] {animation: bp-fade .9s ease both;}</style>""",
+                unsafe_allow_html=True)
+st.markdown("<p class='bp-credit'>" + ("Scroll down to follow the discovery" if ran else "Click the question to begin the discovery")
+            + "<br>Team Hypatia · NASA Space Apps 2026</p>", unsafe_allow_html=True)
 
-# ---------------------------------------------------------------- workflow
+# Music (approach B): one <audio> element attached once to the page outside Streamlit's re-rendered tree,
+# so reruns never recreate or restart it. Started right after the question click where browsers allow.
+SWAN_JS = """<script>
+const w = window.parent, d = w.document;
+if (!d.getElementById('bp-swan')) {
+  const a = d.createElement('audio');
+  a.id = 'bp-swan'; a.loop = false; a.preload = 'auto'; a.controls = true;
+  a.src = w.location.origin + w.location.pathname.replace(/\\/$/, '') + '/app/static/swan.mp3';
+  a.setAttribute('aria-label', 'Music: The Swan (Saint-Saëns) — use the controls to pause or mute');
+  a.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:9999;height:30px;width:190px;opacity:.55;' +
+                    'color-scheme:dark;transition:opacity .4s';
+  a.onmouseenter = () => a.style.opacity = '1'; a.onmouseleave = () => a.style.opacity = '.55';
+  d.body.appendChild(a);
+  a.play().catch(err => { a.dataset.blocked = String(err); a.style.opacity = '1'; });
+}
+if (!w.__bpScrolled) {
+  w.__bpScrolled = true;
+  setTimeout(() => { const t = d.getElementById('bp-hypothesis'); if (t) t.scrollIntoView({behavior: 'smooth', block: 'start'}); }, 900);
+}
+</script>"""
+
 if st.session_state.get("ran"):
     enso_df = load_enso() if ENSO_CSV.exists() else None
     imerg_v = read_json(IMERG_PROV)
@@ -129,90 +138,45 @@ if st.session_state.get("ran"):
         ("Candidate hypothesis with a direct between-region test and validation plan",
          (RESULTS / "stage_i_hypothesis.json").exists()),
     ]
-    with st.expander(f"Analysis workflow — {sum(d for _, d in steps)} of {len(steps)} steps computed from real data"):
-        for i, (label, done) in enumerate(steps, 1):
-            st.markdown(f"{'✅' if done else '⏳'} **Step {i}.** {label} — "
-                        f"{'complete' if done else '*pending: not yet computed*'}")
-
-    # ------------------------------------------------------------ integrated answer
-    hyp_i = read_json(RESULTS / "stage_i_hypothesis.json")
-    tst_i = read_json(RESULTS / "stage_h_test.json")
-    if hyp_i and tst_i and (RESULTS / "network_patterns.csv").exists():
-        st.divider()
-        st.subheader("Four scientific answers")
-        st.markdown(f"*{QUESTION}*")
-        pat = pd.read_csv(RESULTS / "network_patterns.csv")
-        ee = pd.read_csv(RESULTS / "network_edges.csv")
-        prim_i = pd.read_csv(RESULTS / "associations_primary.csv")
-        halves_i = pd.read_csv(RESULTS / "halves.csv")
-        full0 = ee[(ee.kind == "ENSO-region") & (ee.window == gnet.FULL) & (ee.lag == 0)]
-        sup = {s: ", ".join(full0[(full0.season == s) & (full0.status == "supported")].target) or "none"
-               for s in ["DJF", "MAM", "JJA", "SON"]}
-        n_sup = int((ee[(ee.kind == "ENSO-region") & (ee.window == gnet.FULL)].status == "supported").sum())
-        pc = pat[pat.kind == "ENSO-region"].pattern.value_counts()
-        r3 = pd.DataFrame(tst_i["results"]).set_index("target").loc["R3-SON"]
-        A = hyp_i["A_primary_in_sample"]["contrasts"]
-        js = prim_i[(prim_i.lag == 0) & prim_i.season.isin(["JJA", "SON"])]
-        r3d = prim_i[(prim_i.lag == 0) & (prim_i.season == "DJF") & (prim_i.region == "R3")].iloc[0]
-        sup_pos = int(((prim_i.q_bh_surrogate < 0.05) & (prim_i.r > 0)).sum())
-        hw = (halves_i.delta_ci_hi - halves_i.delta_ci_lo) / 2
-        n_change = int(((halves_i.delta_ci_lo > 0) | (halves_i.delta_ci_hi < 0)).sum())
-        cols = st.columns(2)
-        cols[0].markdown(f"""
-**1 · Nature of change**
-
-The relationship changes mainly **with the season**, not over the years. Associations that pass correction
-(lag 0, BH q < 0.05): DJF {sup['DJF']} · MAM {sup['MAM']} · JJA {sup['JJA']} · SON {sup['SON']}.
-Over 1998–2019, {pc.get('recurring', 0)} of 48 ENSO→region edges are *recurring* (same sign in all twelve 11-year
-windows, CI excluding 0 in ≥ 9) and {pc.get('divergent', 0)} are divergent; {n_change} of 48 early-vs-late comparisons show a detectable change.
-*No detectable change ≠ proof of stability.*
-""")
-        cols[1].markdown(f"""
-**2 · Location of change**
-
-In Jun–Nov all three regions show supported associations. In DJF only **R3 (eastern Indonesia)** has a supported
-association; R1 and R2 are inconclusive (not evidence of no relationship). The **direct test** of whether R3's DJF
-coefficient differs from R1/R2 is **not significant** (Holm p = {A['R3-R1']['p_holm_surrogate']:.4f} and
-{A['R3-R2']['p_holm_surrogate']:.4f}), so the east–west contrast is an **observed pattern, not a confirmed difference**.
-""")
-        cols = st.columns(2)
-        cols[0].markdown(f"""
-**3 · Direction of change**
-
-All {n_sup} statistically supported ENSO→rainfall associations are **negative**: higher RONI (El Niño-like) goes with
-**less** rain, lower RONI (La Niña-like) with more. {sup_pos} supported associations are positive. The only
-positive hint (R2 in DJF in recent windows) is inconclusive.
-""")
-        cols[1].markdown(f"""
-**4 · Magnitude of change**
-
-Jun–Nov, lag 0: **{js.slope_mm_per_degC.max():.0f} to {js.slope_mm_per_degC.min():.0f} mm/month per °C** of RONI
-(r {js.r.max():.2f} to {js.r.min():.2f}); R3 in DJF: {r3d.slope_mm_per_degC:.0f} mm/month per °C. The held-out-tested
-R3 Sep–Nov equation cut error from {r3.rmse_climatology:.1f} to {r3.rmse_selected:.1f} mm/month (skill
-{r3.msess_selected:.2f}; simpler one-slope model {r3.msess_linear_lag0:.2f}). The 95% CIs for early-vs-late
-changes in r span about ±{hw.min():.2f} to ±{hw.max():.2f}, so smaller changes cannot be detected with this record.
-""")
+    components.html(SWAN_JS, height=0)
 
     # ------------------------------------------------------------ outputs
     o1, o2, o3 = st.container(), st.container(), st.container()
     pending = ("**Not yet computed.** This output requires the IMERG regional rainfall series "
                "(step 3) and the association analysis (step 5). No placeholder values are shown.")
     with o1:
-        st.divider()
-        st.subheader("Candidate hypothesis and its test")
+        st.markdown("<div id='bp-hypothesis' style='height:4vh'></div>", unsafe_allow_html=True)
+        st.subheader("The hypothesis — and its honest test")
         hyp = read_json(RESULTS / "stage_i_hypothesis.json")
         if not hyp:
             st.warning("Not yet computed (Stage I).")
         else:
             hh = hyp["hypothesis"]
-            st.markdown("**CANDIDATE HYPOTHESIS** (generated from the Stage F/G evidence; not independently validated)")
-            st.markdown(f"> {hh['statement']}")
-            st.markdown(f"- **H₀:** {hh['H0']}  \n- **H₁:** {hh['H1']}")
-            st.markdown("**TEST HYPOTHESIS — direct test of the difference between regional coefficients.** "
-                        "Because every region is paired with the same RONI values, β_R3 − β_Rk equals the "
-                        "slope of the rainfall *difference* (R3 − Rk) on RONI. That single slope is tested with "
-                        "persistence-preserving RONI surrogates (primary), an effective-sample-size t-test, and a "
-                        "joint season-year block bootstrap; Holm correction across the two contrasts.")
+            st.markdown("**CANDIDATE HYPOTHESIS** — generated from the association analysis and the network; "
+                        "not independently validated.")
+            st.markdown("> In December–February, rainfall in **eastern Indonesia (R3)** responds to ENSO differently "
+                        "from R1 and R2: it falls more for each °C of RONI.")
+            st.markdown("- **H₀ (no difference):** R3's December–February ENSO coefficient equals R1's and R2's.  \n"
+                        "- **H₁ (a difference):** it differs (we expected stronger drying in R3).")
+            A0 = hyp["A_primary_in_sample"]
+            st.markdown(
+                "<div style='margin:.6rem 0 1rem 0;padding:14px 18px;border-radius:12px;border:1px solid rgba(242,166,90,.45);"
+                "background:rgba(242,166,90,.08);color:#F6D2AE'><b>Honest verdict:</b> "
+                + ("H₀ rejected — the difference is statistically supported." if A0["decision_rule_met"] else
+                   f"not supported at the 5% level. The pattern points the expected way (R3−R1 "
+                   f"{A0['contrasts']['R3-R1']['delta_beta']:+.1f}, R3−R2 {A0['contrasts']['R3-R2']['delta_beta']:+.1f} "
+                   f"mm/month per °C), but the pre-stated test gives Holm p = "
+                   f"{A0['contrasts']['R3-R1']['p_holm_surrogate']:.4f} and {A0['contrasts']['R3-R2']['p_holm_surrogate']:.4f}. "
+                   "A <i>suggestive</i> pattern, not a confirmed difference.")
+                + "</div>", unsafe_allow_html=True)
+            with st.expander("Formal statement (as pre-registered in the analysis script)"):
+                st.markdown(f"> {hh['statement']}")
+                st.markdown(f"- **H₀:** {hh['H0']}  \n- **H₁:** {hh['H1']}")
+            st.markdown("**TEST HYPOTHESIS.** In December–February, does eastern Indonesia (R3) respond to ENSO "
+                        "differently from R1 and R2? We test the *difference* directly, not each region separately.")
+            st.caption("Method: β_R3 − β_Rk equals the slope of the rainfall difference (R3 − Rk) on RONI, tested with "
+                       "persistence-preserving RONI surrogates (primary), an effective-sample-size t-test and a joint "
+                       "season-year block bootstrap; Holm correction across the two contrasts.")
             blocks = {"A — discovery data 1998–2019 (in-sample; generated the hypothesis)": hyp["A_primary_in_sample"],
                       "B — held-out months 2020–2025 (temporal check; low power)": hyp["B_held_out"],
                       **{f"Sensitivity — {k}": v for k, v in hyp["C_sensitivity"].items()}}
@@ -221,16 +185,17 @@ changes in r span about ±{hw.min():.2f} to ±{hw.max():.2f}, so smaller changes
             sl = pd.DataFrame([{"region": r, "β (mm/month per °C)" if "standardised" not in bk else "β (SD per °C)": v["beta"],
                                 "95% CI": f"[{v['ci95'][0]:.2f}, {v['ci95'][1]:.2f}]", "r": v["r"]}
                                for r, v in blk["slopes"].items()])
-            st.markdown(f"**Estimated regional effects** — DJF, lag {blk['lag']}, {blk['n_months']} months "
-                        f"({blk['n_season_years']} season-years)")
-            st.dataframe(sl.round(3), use_container_width=True, hide_index=True, key="hyp_slopes")
-            ct = pd.DataFrame([{"contrast": c, "Δβ = β_R3 − β_Rk": v["delta_beta"],
-                                "95% CI (block bootstrap)": f"[{v['ci95'][0]:.2f}, {v['ci95'][1]:.2f}]",
-                                "p (surrogate)": v["p_surrogate"], "p Holm (surrogate)": v["p_holm_surrogate"],
-                                "p (eff. sample size)": v["p_ess"], "n_eff": v["n_eff"]}
-                               for c, v in blk["contrasts"].items()])
-            st.markdown("**Between-region contrasts (the actual hypothesis test)**")
-            st.dataframe(ct.round(4), use_container_width=True, hide_index=True, key="hyp_contrasts")
+            with st.expander("Numbers behind the charts"):
+                st.markdown(f"**Estimated regional effects** — DJF, lag {blk['lag']}, {blk['n_months']} months "
+                            f"({blk['n_season_years']} season-years)")
+                st.dataframe(sl.round(3), use_container_width=True, hide_index=True, key="hyp_slopes")
+                ct = pd.DataFrame([{"contrast": c, "Δβ = β_R3 − β_Rk": v["delta_beta"],
+                                    "95% CI (block bootstrap)": f"[{v['ci95'][0]:.2f}, {v['ci95'][1]:.2f}]",
+                                    "p (surrogate)": v["p_surrogate"], "p Holm (surrogate)": v["p_holm_surrogate"],
+                                    "p (eff. sample size)": v["p_ess"], "n_eff": v["n_eff"]}
+                                   for c, v in blk["contrasts"].items()])
+                st.markdown("**Between-region contrasts (the actual hypothesis test)**")
+                st.dataframe(ct.round(4), use_container_width=True, hide_index=True, key="hyp_contrasts")
             units = "SD per °C" if "standardised" in bk else "mm/month per °C"
             g1, g2 = st.columns(2)
             regc = {"R1": "#57B9F5", "R2": "#8275DA", "R3": "#F2A65A"}
@@ -313,7 +278,7 @@ changes in r span about ±{hw.min():.2f} to ±{hw.max():.2f}, so smaller changes
             st.markdown(f"**Falsification / independent validation plan.** {hh['falsification']}")
     with o2:
         st.divider()
-        st.subheader("Mathematical equation — discovered, frozen and tested")
+        st.subheader("The equation — discovered, frozen and tested")
         sel = read_json(RESULTS / "stage_h_selection.json")
         tst = read_json(RESULTS / "stage_h_test.json")
         hyp_eq = read_json(RESULTS / "stage_i_hypothesis.json")
@@ -386,6 +351,8 @@ changes in r span about ±{hw.min():.2f} to ±{hw.max():.2f}, so smaller changes
             st.caption("One month illustrates the arithmetic; it is not evidence. The evaluation is the 16-month test below. "
                        "Coefficients are frozen (fit 1998–2019); test months were never used for fitting or selection.")
 
+            st.divider()
+            st.subheader("What the real data show")
             # ---- 2. time series over all held-out months
             st.markdown("#### Observed vs calculated rainfall — all 16 held-out months")
             lab = ep.date.dt.strftime("%Y-%m")
@@ -466,109 +433,13 @@ changes in r span about ±{hw.min():.2f} to ±{hw.max():.2f}, so smaller changes
                                                  "msess_selected", "msess_linear_lag0", "msess_persistence"]]
             with st.expander("All 12 region-season targets (validation choice and test skill)"):
                 st.dataframe(allt.round(2), use_container_width=True, hide_index=True)
-    with o3:
-        st.divider()
-        st.subheader("Dynamic relationship network (G-NETS prototype)")
-        if not (RESULTS / "network_edges.csv").exists():
-            st.warning("Not yet computed (Stage G).")
-        else:
-            edges = load_edges()
-            meta = read_json(RESULTS / "network_nodes.json")
-            st.markdown(
-                "**COMPUTATIONAL RESULT — exploratory association network (G-NETS, proposed framework).** "
-                "Nodes: ENSO (RONI, °C) and three IMERG-derived rainfall regions placed at their "
-                "geographic centroids (ENSO's position is schematic). Each edge is one computed Pearson "
-                "correlation from Stage F (ENSO→region: RONI vs rainfall anomaly *lag* months later) or "
-                "between two regions' same-month rainfall anomalies. Edges show statistical association "
-                "only — not causation, and not a topological invariant.")
-            st.info("**How to read:** circles are ENSO and three rainfall regions. A solid line is a statistically "
-                    "supported correlation (number = r; thicker = stronger). **Amber** = less rain when RONI is high "
-                    "(El Niño-like); **blue** = regions whose rainfall rises and falls together; **dashed grey** = "
-                    "inconclusive, which is *not* proof of no relationship. Hover any label for the 95% CI, sample "
-                    "size and test result.")
-            c1, c2, c3 = st.columns([2, 1, 2])
-            n_season = c1.radio("Season (rainfall months)", ["DJF", "MAM", "JJA", "SON"], index=3,
-                                horizontal=True, key="net_season")
-            n_lag = c2.selectbox("Lag: rainfall follows ENSO by (months)", [0, 1, 2, 3], key="net_lag")
-            wins = [gnet.FULL] + sorted(w for w in edges.window.unique() if w != gnet.FULL)
-            n_win = c3.selectbox("Time window", wins, key="net_window",
-                                 help="11-year rolling windows overlap; they are not independent tests.")
-            show_rr = st.checkbox("Show region–region rainfall links (lag 0)", value=True, key="net_rr")
-            sel_e = edges[(edges.season == n_season) & (edges.window == n_win) &
-                          (((edges.kind == "ENSO-region") & (edges.lag == n_lag)) |
-                           ((edges.kind == "region-region") & show_rr))]
-            pos = {k: tuple(v["pos"]) for k, v in meta["nodes"].items() if k != "ENSO"}
-            st.plotly_chart(gnet.figure(sel_e, pos, meta["stage_h_notes"]), use_container_width=True,
-                            key=f"net_fig_{n_season}_{n_lag}_{n_win}_{show_rr}")
-            st.caption("Edge width ∝ |r|; label = r; hover for 95% CI, n, BH q and pattern. A positive ENSO→region "
-                       "r would mean more rain when RONI is high; none is statistically supported in the full period. "
-                       "Region–region links share variability that may itself be partly ENSO-driven.")
-            if n_win != gnet.FULL:
-                st.warning(f"Window {n_win}: about {int(sel_e.n.min())} monthly pairs per edge; status uses "
-                           "the bootstrap CI only (no multiple-testing correction). Treat as exploratory.")
-            st.markdown("**Link to the Stage H equation (held-out validation status):**")
-            for reg in ["R1", "R2", "R3"]:
-                note = meta["stage_h_notes"].get(f"{reg}-{n_season}", "")
-                flag = " ← headline equation" if f"{reg}-{n_season}" == (sel or {}).get("headline") else ""
-                st.markdown(f"- {reg}–{n_season}: {note}{flag}")
-            shown = sel_e[["kind", "source", "target", "lag", "window", "r", "ci_lo", "ci_hi", "n",
-                           "q_bh", "status", "pattern"]].rename(columns={"q_bh": "BH q (full period)"})
-            st.dataframe(shown.round(3), use_container_width=True, hide_index=True, key="net_table")
-
-            st.markdown("**How the ENSO→region edges change across rolling windows** "
-                        f"({n_season}, lag {n_lag}; ● = 95% CI excludes 0)")
-            roll_e = edges[(edges.kind == "ENSO-region") & (edges.season == n_season) &
-                           (edges.lag == n_lag) & (edges.window != gnet.FULL)]
-            piv = roll_e.pivot(index="target", columns="window", values="r")
-            excl = roll_e.assign(x=(roll_e.ci_lo > 0) | (roll_e.ci_hi < 0)).pivot(
-                index="target", columns="window", values="x")
-            txt = piv.round(2).astype(str) + excl.map(lambda b: " ●" if b else "")
-            hm2 = go.Figure(go.Heatmap(z=piv.values, x=piv.columns, y=piv.index, text=txt.values,
-                                       texttemplate="%{text}", zmin=-1, zmax=1, colorscale="RdBu",
-                                       colorbar=dict(title="r")))
-            hm2.update_layout(height=230, margin=dict(l=10, r=10, t=10, b=10))
-            st.plotly_chart(hm2, use_container_width=True, key=f"net_hm_{n_season}_{n_lag}")
-            pats = pd.read_csv(RESULTS / "network_patterns.csv")
-            pt = pats[(pats.kind == "ENSO-region") & (pats.season == n_season) & (pats.lag == n_lag)]
-            st.dataframe(pt[["target", "pattern", "windows_ci_excludes_0", "n_windows", "r_min", "r_max"]].round(2),
-                         use_container_width=True, hide_index=True, key="net_patterns")
-            st.caption("Pattern rules (fixed in beyond_prediction/network.py): recurring = same sign in all 12 "
-                       "windows and CI excludes 0 in ≥ 9; weak-recurring = same sign, fewer; divergent = CI "
-                       "excludes 0 with opposite signs in different windows; sign-variable = sign changes "
-                       "without that (inconclusive). An inconclusive or absent edge is not evidence of no "
-                       "relationship.")
-
-    # ------------------------------------------------------------ integrated interpretation
-    if hyp_i and tst_i and (RESULTS / "network_patterns.csv").exists():
-        st.divider()
-        st.subheader("Integrated scientific interpretation")
-        st.markdown(
-            f"**The network** shows that ENSO–rainfall links over Indonesia are organised by season: in Jun–Nov "
-            f"every region carries a negative, recurring link (El Niño-like RONI → less rain), while in DJF only "
-            f"eastern Indonesia (R3) does, and in MAM no link passes correction. **The equation** quantifies one of "
-            f"the strongest recurring links (R3, Sep–Nov) and passed a one-time held-out test (skill "
-            f"{r3.msess_selected:.2f}; the simpler one-slope model {r3.msess_linear_lag0:.2f}). **The hypothesis** "
-            f"tests the most notable divergence — whether R3's DJF coefficient really differs from R1/R2: the "
-            f"contrasts point the expected way ({A['R3-R1']['delta_beta']:+.1f} and {A['R3-R2']['delta_beta']:+.1f} "
-            f"mm/month per °C) but are **not significant** under the pre-stated test (Holm p "
-            f"{A['R3-R1']['p_holm_surrogate']:.4f} and {A['R3-R2']['p_holm_surrogate']:.4f}), so it remains a "
-            f"*suggestive pattern*, not a confirmed difference.")
-        st.markdown(
-            "**What changes, and what does not:** the relationships change strongly *across seasons and regions*; "
-            "over 1998–2019 no change *over time* was detected (with limited power). **Evidence labels:** numbers are "
-            "COMPUTATIONAL RESULTS from IMERG V07B and NOAA CPC RONI; agreement with PUBLISHED KNOWLEDGE (El Niño "
-            "dries much of Indonesia in Jun–Nov) is noted; INDEPENDENT VALIDATION with other rainfall data (CHIRPS, "
-            "BMKG gauges) is the next step and **has not yet been performed**. G-NETS is a proposed investigational "
-            "framework; associations are not causation.")
-
     st.divider()
-    with st.expander("Supporting evidence — ENSO record, rainfall regions, full association tables"):
+    with st.expander("Technical details — data, regions, full statistics, methods and provenance"):
         index_choice = st.selectbox(
             "ENSO index for the record chart", ["RONI (NOAA official)", "ONI (sensitivity check)"],
             help="Per NWS Public Information Statement 26-05, NOAA CPC uses RONI for official ENSO "
                  "monitoring. ONI is kept as a sensitivity check.")
         st.divider()
-        st.subheader("Supporting evidence (observed data)")
         if enso_df is not None:
             col = "roni_anom_degC" if index_choice.startswith("RONI") else "oni_anom_degC"
             name = col.split("_")[0].upper()
@@ -684,41 +555,180 @@ changes in r span about ±{hw.min():.2f} to ±{hw.max():.2f}, so smaller changes
                            "different regionalizations are not interchangeable (k=2 is in the CSV "
                            "files and the findings report).")
 
-    # ------------------------------------------------------------ methods etc.
-    st.divider()
-    t1, t2, t3 = st.tabs(["Methods", "Limitations", "Data provenance"])
-    with t1:
-        st.markdown(
-            "- **ENSO:** CPC ONI and RONI (ERSSTv6), 3-month means aligned to centre month.\n"
-            "- **Rainfall:** GPM IMERG Final monthly V07B, 0.1°, native unit mm/hr → mm/month "
-            "via days-in-month × 24.\n"
-            "- **Territory:** Natural Earth 1:10m Indonesia (v5.1.1) ∩ IMERG land/sea mask V2: a cell "
-            "is used if ≥ 50 % of it is Indonesian territory and < 50 % of it is water.\n"
-            "- **Regions:** k-means (k = 3, chosen a priori) on each cell's standardised 1998–2024 "
-            "climatological annual cycle. Labelled R1–R3. Grouping by annual-cycle similarity follows "
-            "the idea of Aldrian & Susanto (2003), but their station-based A/B/C regions are *not* "
-            "reproduced and R1–R3 are not claimed to be equivalent.\n"
-            "- **Inference:** effective sample size for autocorrelation, phase-randomised "
-            "surrogates, block bootstrap CIs, Benjamini–Hochberg FDR across all tests.\n"
-            "- **G-NETS:** proposed investigational framework for organising results as a "
-            "time-varying association network; not a validated mathematical theory.")
-    with t2:
-        st.markdown(
-            "- About 27 years of satellite rainfall contain few ENSO events; sliding-window "
-            "estimates will be noisy.\n"
-            "- IMERG 1998 – May 2000 is TRMM-era input; NASA documents specific caveats.\n"
-            "- The Indian Ocean Dipole co-varies with ENSO (r ≈ 0.5 in SON). A DMI sensitivity check "
-            "(docs/IOD_SENSITIVITY.md) found the JJA, R1/R3 SON and R3 DJF RONI associations persist after "
-            "controlling for DMI; R2 SON weakens. DMI is not part of the selected equation.\n"
-            "- Correlation and regression results describe association, not causation.\n"
-            "- Recent ENSO values are provisional and may be revised by CPC.")
-    with t3:
-        st.json(regions_v or {"regions": "not built"}, expanded=False)
-        st.json(read_json(ENSO_PROV) or {"enso": "not built"}, expanded=False)
-        st.json(read_json(IMERG_PROV) or {"imerg": "not verified"}, expanded=False)
+        st.markdown("#### Analysis workflow")
+        for i, (label, done) in enumerate(steps, 1):
+            st.markdown(f"{'✅' if done else '⏳'} **Step {i}.** {label} — "
+                        f"{'complete' if done else '*pending: not yet computed*'}")
+        # ------------------------------------------------------------ methods etc.
+        t1, t2, t3 = st.tabs(["Methods", "Limitations", "Data provenance"])
+        with t1:
+            st.markdown(
+                "- **ENSO:** CPC ONI and RONI (ERSSTv6), 3-month means aligned to centre month.\n"
+                "- **Rainfall:** GPM IMERG Final monthly V07B, 0.1°, native unit mm/hr → mm/month "
+                "via days-in-month × 24.\n"
+                "- **Territory:** Natural Earth 1:10m Indonesia (v5.1.1) ∩ IMERG land/sea mask V2: a cell "
+                "is used if ≥ 50 % of it is Indonesian territory and < 50 % of it is water.\n"
+                "- **Regions:** k-means (k = 3, chosen a priori) on each cell's standardised 1998–2024 "
+                "climatological annual cycle. Labelled R1–R3. Grouping by annual-cycle similarity follows "
+                "the idea of Aldrian & Susanto (2003), but their station-based A/B/C regions are *not* "
+                "reproduced and R1–R3 are not claimed to be equivalent.\n"
+                "- **Inference:** effective sample size for autocorrelation, phase-randomised "
+                "surrogates, block bootstrap CIs, Benjamini–Hochberg FDR across all tests.\n"
+                "- **G-NETS:** proposed investigational framework for organising results as a "
+                "time-varying association network; not a validated mathematical theory.")
+        with t2:
+            st.markdown(
+                "- About 27 years of satellite rainfall contain few ENSO events; sliding-window "
+                "estimates will be noisy.\n"
+                "- IMERG 1998 – May 2000 is TRMM-era input; NASA documents specific caveats.\n"
+                "- The Indian Ocean Dipole co-varies with ENSO (r ≈ 0.5 in SON). A DMI sensitivity check "
+                "(docs/IOD_SENSITIVITY.md) found the JJA, R1/R3 SON and R3 DJF RONI associations persist after "
+                "controlling for DMI; R2 SON weakens. DMI is not part of the selected equation.\n"
+                "- Correlation and regression results describe association, not causation.\n"
+                "- Recent ENSO values are provisional and may be revised by CPC.")
+        with t3:
+            st.json(regions_v or {"regions": "not built"}, expanded=False)
+            st.json(read_json(ENSO_PROV) or {"enso": "not built"}, expanded=False)
+            st.json(read_json(IMERG_PROV) or {"imerg": "not verified"}, expanded=False)
+    with o3:
+        st.divider()
+        st.subheader("The dynamic scientific network")
+        if not (RESULTS / "network_edges.csv").exists():
+            st.warning("Not yet computed (Stage G).")
+        else:
+            edges = load_edges()
+            meta = read_json(RESULTS / "network_nodes.json")
+            st.markdown(
+                "This network is built from **real computed correlations** (1998–2019): ENSO and three "
+                "Indonesian rainfall regions, placed at their real locations. Change the season, the lag or the "
+                "time window to see how the links appear, strengthen or fade. G-NETS is our proposed framework "
+                "for reading such networks; the links show association, not causation.")
+            st.info("**How to read:** circles are ENSO and three rainfall regions. A solid line is a statistically "
+                    "supported correlation (number = r; thicker = stronger). **Amber** = less rain when RONI is high "
+                    "(El Niño-like); **blue** = regions whose rainfall rises and falls together; **dashed grey** = "
+                    "inconclusive, which is *not* proof of no relationship. Hover any label for the 95% CI, sample "
+                    "size and test result.")
+            c1, c2, c3 = st.columns([2, 1, 2])
+            n_season = c1.radio("Season (rainfall months)", ["DJF", "MAM", "JJA", "SON"], index=3,
+                                horizontal=True, key="net_season")
+            n_lag = c2.selectbox("Lag: rainfall follows ENSO by (months)", [0, 1, 2, 3], key="net_lag")
+            wins = [gnet.FULL] + sorted(w for w in edges.window.unique() if w != gnet.FULL)
+            n_win = c3.selectbox("Time window", wins, key="net_window",
+                                 help="11-year rolling windows overlap; they are not independent tests.")
+            show_rr = st.checkbox("Show region–region rainfall links (lag 0)", value=True, key="net_rr")
+            sel_e = edges[(edges.season == n_season) & (edges.window == n_win) &
+                          (((edges.kind == "ENSO-region") & (edges.lag == n_lag)) |
+                           ((edges.kind == "region-region") & show_rr))]
+            pos = {k: tuple(v["pos"]) for k, v in meta["nodes"].items() if k != "ENSO"}
+            st.plotly_chart(gnet.figure(sel_e, pos, meta["stage_h_notes"]), use_container_width=True,
+                            key=f"net_fig_{n_season}_{n_lag}_{n_win}_{show_rr}")
+            st.caption("Edge width ∝ |r|; label = r; hover for 95% CI, n, BH q and pattern. A positive ENSO→region "
+                       "r would mean more rain when RONI is high; none is statistically supported in the full period. "
+                       "Region–region links share variability that may itself be partly ENSO-driven.")
+            if n_win != gnet.FULL:
+                st.warning(f"Window {n_win}: about {int(sel_e.n.min())} monthly pairs per edge; status uses "
+                           "the bootstrap CI only (no multiple-testing correction). Treat as exploratory.")
+            st.markdown("**Link to the Stage H equation (held-out validation status):**")
+            for reg in ["R1", "R2", "R3"]:
+                note = meta["stage_h_notes"].get(f"{reg}-{n_season}", "")
+                flag = " ← headline equation" if f"{reg}-{n_season}" == (sel or {}).get("headline") else ""
+                st.markdown(f"- {reg}–{n_season}: {note}{flag}")
+            shown = sel_e[["kind", "source", "target", "lag", "window", "r", "ci_lo", "ci_hi", "n",
+                           "q_bh", "status", "pattern"]].rename(columns={"q_bh": "BH q (full period)"})
+            st.dataframe(shown.round(3), use_container_width=True, hide_index=True, key="net_table")
 
-# ---------------------------------------------------------------- closing
-st.divider()
-st.markdown("<div style='text-align:center;padding:24px;border:1px dashed #9aa;border-radius:8px;"
-            "opacity:.7'><i>Closing quote — to be decided by Team Hypatia.</i></div>",
-            unsafe_allow_html=True)
+            st.markdown("**How the ENSO→region edges change across rolling windows** "
+                        f"({n_season}, lag {n_lag}; ● = 95% CI excludes 0)")
+            roll_e = edges[(edges.kind == "ENSO-region") & (edges.season == n_season) &
+                           (edges.lag == n_lag) & (edges.window != gnet.FULL)]
+            piv = roll_e.pivot(index="target", columns="window", values="r")
+            excl = roll_e.assign(x=(roll_e.ci_lo > 0) | (roll_e.ci_hi < 0)).pivot(
+                index="target", columns="window", values="x")
+            txt = piv.round(2).astype(str) + excl.map(lambda b: " ●" if b else "")
+            hm2 = go.Figure(go.Heatmap(z=piv.values, x=piv.columns, y=piv.index, text=txt.values,
+                                       texttemplate="%{text}", zmin=-1, zmax=1, colorscale="RdBu",
+                                       colorbar=dict(title="r")))
+            hm2.update_layout(height=230, margin=dict(l=10, r=10, t=10, b=10))
+            st.plotly_chart(hm2, use_container_width=True, key=f"net_hm_{n_season}_{n_lag}")
+            pats = pd.read_csv(RESULTS / "network_patterns.csv")
+            pt = pats[(pats.kind == "ENSO-region") & (pats.season == n_season) & (pats.lag == n_lag)]
+            st.dataframe(pt[["target", "pattern", "windows_ci_excludes_0", "n_windows", "r_min", "r_max"]].round(2),
+                         use_container_width=True, hide_index=True, key="net_patterns")
+            st.caption("Pattern rules (fixed in beyond_prediction/network.py): recurring = same sign in all 12 "
+                       "windows and CI excludes 0 in ≥ 9; weak-recurring = same sign, fewer; divergent = CI "
+                       "excludes 0 with opposite signs in different windows; sign-variable = sign changes "
+                       "without that (inconclusive). An inconclusive or absent edge is not evidence of no "
+                       "relationship.")
+
+    # ------------------------------------------------------------ integrated answer
+    hyp_i = read_json(RESULTS / "stage_i_hypothesis.json")
+    tst_i = read_json(RESULTS / "stage_h_test.json")
+    if hyp_i and tst_i and (RESULTS / "network_patterns.csv").exists():
+        st.divider()
+        st.subheader("Four scientific answers")
+        st.markdown(f"*{QUESTION}*")
+        pat = pd.read_csv(RESULTS / "network_patterns.csv")
+        ee = pd.read_csv(RESULTS / "network_edges.csv")
+        prim_i = pd.read_csv(RESULTS / "associations_primary.csv")
+        halves_i = pd.read_csv(RESULTS / "halves.csv")
+        full0 = ee[(ee.kind == "ENSO-region") & (ee.window == gnet.FULL) & (ee.lag == 0)]
+        sup = {s: ", ".join(full0[(full0.season == s) & (full0.status == "supported")].target) or "none"
+               for s in ["DJF", "MAM", "JJA", "SON"]}
+        n_sup = int((ee[(ee.kind == "ENSO-region") & (ee.window == gnet.FULL)].status == "supported").sum())
+        pc = pat[pat.kind == "ENSO-region"].pattern.value_counts()
+        r3 = pd.DataFrame(tst_i["results"]).set_index("target").loc["R3-SON"]
+        A = hyp_i["A_primary_in_sample"]["contrasts"]
+        js = prim_i[(prim_i.lag == 0) & prim_i.season.isin(["JJA", "SON"])]
+        r3d = prim_i[(prim_i.lag == 0) & (prim_i.season == "DJF") & (prim_i.region == "R3")].iloc[0]
+        sup_pos = int(((prim_i.q_bh_surrogate < 0.05) & (prim_i.r > 0)).sum())
+        hw = (halves_i.delta_ci_hi - halves_i.delta_ci_lo) / 2
+        n_change = int(((halves_i.delta_ci_lo > 0) | (halves_i.delta_ci_hi < 0)).sum())
+        cols = st.columns(2)
+        cols[0].markdown(f"""
+**1 · Nature of change**
+
+The relationship changes mainly **with the season**, not over the years. Associations that pass correction
+(lag 0, BH q < 0.05): DJF {sup['DJF']} · MAM {sup['MAM']} · JJA {sup['JJA']} · SON {sup['SON']}.
+Over 1998–2019, {pc.get('recurring', 0)} of 48 ENSO→region edges are *recurring* (same sign in all twelve 11-year
+windows, CI excluding 0 in ≥ 9) and {pc.get('divergent', 0)} are divergent; {n_change} of 48 early-vs-late comparisons show a detectable change.
+*No detectable change ≠ proof of stability.*
+""")
+        cols[1].markdown(f"""
+**2 · Location of change**
+
+In Jun–Nov all three regions show supported associations. In DJF only **R3 (eastern Indonesia)** has a supported
+association; R1 and R2 are inconclusive (not evidence of no relationship). The **direct test** of whether R3's DJF
+coefficient differs from R1/R2 is **not significant** (Holm p = {A['R3-R1']['p_holm_surrogate']:.4f} and
+{A['R3-R2']['p_holm_surrogate']:.4f}), so the east–west contrast is an **observed pattern, not a confirmed difference**.
+""")
+        cols = st.columns(2)
+        cols[0].markdown(f"""
+**3 · Direction of change**
+
+All {n_sup} statistically supported ENSO→rainfall associations are **negative**: higher RONI (El Niño-like) goes with
+**less** rain, lower RONI (La Niña-like) with more. {sup_pos} supported associations are positive. The only
+positive hint (R2 in DJF in recent windows) is inconclusive.
+""")
+        cols[1].markdown(f"""
+**4 · Magnitude of change**
+
+Jun–Nov, lag 0: **{js.slope_mm_per_degC.max():.0f} to {js.slope_mm_per_degC.min():.0f} mm/month per °C** of RONI
+(r {js.r.max():.2f} to {js.r.min():.2f}); R3 in DJF: {r3d.slope_mm_per_degC:.0f} mm/month per °C. The held-out-tested
+R3 Sep–Nov equation cut error from {r3.rmse_climatology:.1f} to {r3.rmse_selected:.1f} mm/month (skill
+{r3.msess_selected:.2f}; simpler one-slope model {r3.msess_linear_lag0:.2f}). The 95% CIs for early-vs-late
+changes in r span about ±{hw.min():.2f} to ±{hw.max():.2f}, so smaller changes cannot be detected with this record.
+""")
+
+
+    # ------------------------------------------------------------ closing
+    st.markdown("<div class='bp-quote'>“The universe whispers in patterns. Discovery begins when we learn to listen.”</div>",
+                unsafe_allow_html=True)
+    st.markdown(
+        "<div class='bp-foot'>Music: Camille Saint-Saëns, <i>Le Cygne</i> (The Swan, No. 13), performed by Matilda "
+        "Colliard (cello) and Stefano Ligoratti (piano), Classica Viva, Milan — licensed under "
+        "<a href='https://creativecommons.org/licenses/by/4.0/' target='_blank'>CC BY 4.0</a>; source: "
+        "<a href='https://commons.wikimedia.org/wiki/File:Camille_Saint-Sa%C3%ABns_-_Le_Cygne_(No._13)_-_Matilda_Colliard_and_Stefano_Ligoratti.ogg' "
+        "target='_blank'>Wikimedia Commons</a> (MP3 version of the original Ogg file, as provided by Wikimedia). "
+        "<br>Data: NASA GPM IMERG V07B · NOAA CPC RONI/ONI · Natural Earth. Team Hypatia · NASA Space Apps 2026.</div>",
+        unsafe_allow_html=True)
+

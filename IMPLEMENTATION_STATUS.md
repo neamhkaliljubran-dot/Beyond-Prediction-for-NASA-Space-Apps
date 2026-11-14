@@ -145,6 +145,22 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
   `assets/audio/`), native player, off by default.
 - No scientific result changed; the flow check reproduces identical values; 36 tests pass.
 
+## Final visitor experience (checkpoint before this change: commit 7c3cd88)
+- Landing: display heading "Meta Prediction" (display-only; project name unchanged), subtitle "An Earth System
+  Hypothesis Discovery Engine", original animated conceptual network (labelled "not data"), floating grey
+  question box (a styled Streamlit button) that turns black and stops on click, then auto-scrolls to the hypothesis.
+- Order: hypothesis + honest verdict → equation + TEST EQUATION → "What the real data show" charts → technical
+  details (collapsed) → dynamic network → four answers → closing quote → attribution.
+- Removed from the visitor experience: pyramid, Walker schematic, intro, demo guide, workflow panel (kept in
+  technical details), integrated-interpretation section, Bach audio and its script.
+- Starfield: CSS layers (two drifting, two twinkling) fixed behind content; glow filters removed for performance
+  (software-rendering test: landing ≈ 25–33 fps, results ≈ 60 fps; GPU machines expected 60).
+- Music: Saint-Saëns "Le Cygne", Matilda Colliard & Stefano Ligoratti, CC BY 4.0 (verified via Commons API);
+  Wikimedia's MP3 transcode stored once at `static/swan.mp3` (158 s, complete, no loop); provenance in
+  `data/provenance/audio.json`. One <audio> element is attached to the page outside Streamlit's re-rendered tree,
+  so reruns do not restart it (browser test: same element, time advancing across 6 reruns, strict autoplay policy).
+- All scientific values unchanged; 36 tests pass; real-browser walkthrough passes with 0 exceptions.
+
 ## Open issues
 - Main regions use the 1998–2024 climatology (overlaps test). Training-only regions (1998–2013) give
   nearly identical associations. Regions use the full period's climatology (annual cycle only, not ENSO); a held-out period
