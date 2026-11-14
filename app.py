@@ -28,6 +28,8 @@ ENSO_CSV = DATA / "processed" / "enso_monthly.csv"
 REGIONAL_CSV = DATA / "processed" / "imerg_regional_monthly.csv"   # not built yet
 ENSO_PROV = DATA / "provenance" / "enso.json"
 IMERG_PROV = DATA / "provenance" / "imerg_verification.json"
+REGIONS_PROV = DATA / "provenance" / "regions.json"
+REGION_MAP = Path(__file__).parent / "docs" / "figures" / "regions_map.png"
 
 
 @st.cache_data
@@ -87,11 +89,12 @@ if st.session_state.get("ran"):
     enso_df = load_enso() if ENSO_CSV.exists() else None
     imerg_v = read_json(IMERG_PROV)
     have_regional = REGIONAL_CSV.exists()
+    regions_v = read_json(REGIONS_PROV)
     steps = [
         ("Load & validate NOAA CPC ENSO indices (ONI, RONI)", enso_df is not None),
         ("Verify GPM IMERG V07 monthly collection, coverage, units, access", imerg_v is not None),
         ("Subset IMERG over Indonesia → monthly land rainfall (mm/month)", have_regional),
-        ("Derive rainfall clusters (IMERG-derived; compared with, not equal to, published A/B/C)", False),
+        ("Derive rainfall regions R1–R3 (IMERG-derived; not the published A/B/C)", regions_v is not None),
         ("Seasonal & lagged associations with autocorrelation-aware inference and FDR control", False),
         ("Equation discovery with leakage-free time-blocked validation vs baselines", False),
         ("Dynamic association network across seasons and time windows", False),
@@ -168,6 +171,24 @@ if st.session_state.get("ran"):
                        "±0.5 °C), applied to the file's unrounded values. These are descriptive "
                        "counts only, not results of the ENSO–rainfall analysis.")
 
+    if regions_v and REGION_MAP.exists():
+        st.markdown("**COMPUTATIONAL RESULT — IMERG-derived rainfall regions (R1–R3)**")
+        st.image(str(REGION_MAP), use_container_width=True)
+        rr = regions_v["regions"]
+        tbl = pd.DataFrame({k: v["climatology_mm_month"] for k, v in rr.items()}).T
+        tbl.columns = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        tbl.insert(0, "area share", [f"{v['area_share']:.0%}" for v in rr.values()])
+        st.dataframe(tbl, use_container_width=True)
+        rz = regions_v["regionalization"]
+        boot = sorted(rz["year_bootstrap_ARI_20"])
+        st.caption(
+            f"Mean monthly rainfall (mm/month), {regions_v['climatology_years'][0]}–"
+            f"{regions_v['climatology_years'][1]}, area-weighted. Stability: year-bootstrap adjusted "
+            f"Rand index median {boot[len(boot)//2]:.2f} (range {boot[0]:.2f}–{boot[-1]:.2f}); "
+            f"silhouette favours k=2 ({rz['silhouette_by_k_subsample5000']['2']:.2f}) over k=3 "
+            f"({rz['silhouette_by_k_subsample5000']['3']:.2f}). Small islands excluded by the cell "
+            f"rule: {regions_v['mask']['area_share_of_those_parts']:.1%} of Indonesian land area.")
+
     # ------------------------------------------------------------ methods etc.
     st.divider()
     t1, t2, t3 = st.tabs(["Methods", "Limitations", "Data provenance"])
@@ -176,9 +197,12 @@ if st.session_state.get("ran"):
             "- **ENSO:** CPC ONI and RONI (ERSSTv6), 3-month means aligned to centre month.\n"
             "- **Rainfall:** GPM IMERG Final monthly V07B, 0.1°, native unit mm/hr → mm/month "
             "via days-in-month × 24.\n"
-            "- **Regions:** clusters derived from IMERG land rainfall using the double-correlation "
-            "approach of Aldrian & Susanto (2003). They are labelled C1–C3 and *compared with* the "
-            "published A/B/C regions; they are not claimed to be identical.\n"
+            "- **Territory:** Natural Earth 1:10m Indonesia (v5.1.1) ∩ IMERG land/sea mask V2: a cell "
+            "is used if ≥ 50 % of it is Indonesian territory and < 50 % of it is water.\n"
+            "- **Regions:** k-means (k = 3, chosen a priori) on each cell's standardised 1998–2024 "
+            "climatological annual cycle. Labelled R1–R3. Grouping by annual-cycle similarity follows "
+            "the idea of Aldrian & Susanto (2003), but their station-based A/B/C regions are *not* "
+            "reproduced and R1–R3 are not claimed to be equivalent.\n"
             "- **Inference:** effective sample size for autocorrelation, phase-randomised "
             "surrogates, block bootstrap CIs, Benjamini–Hochberg FDR across all tests.\n"
             "- **G-NETS:** proposed investigational framework for organising results as a "
@@ -193,6 +217,7 @@ if st.session_state.get("ran"):
             "- Correlation and regression results describe association, not causation.\n"
             "- Recent ENSO values are provisional and may be revised by CPC.")
     with t3:
+        st.json(regions_v or {"regions": "not built"}, expanded=False)
         st.json(read_json(ENSO_PROV) or {"enso": "not built"}, expanded=False)
         st.json(read_json(IMERG_PROV) or {"imerg": "not verified"}, expanded=False)
 

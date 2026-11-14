@@ -107,6 +107,15 @@ def main() -> None:
         "grid_estimated_area_deg2": float(frac.sum() * 0.01),
     }
 
+    import shapely
+    LONg, LATg = np.meshgrid(lon, lat)
+    tree = shapely.STRtree(shapely.points(LONg[include], LATg[include]))
+    parts = list(getattr(idn, "geoms", [idn]))
+    lost = [p for p in parts if len(tree.query(p, predicate="contains")) == 0]
+    mask_stats["natural_earth_polygon_parts"] = len(parts)
+    mask_stats["parts_without_included_cell_centre"] = len(lost)
+    mask_stats["area_share_of_those_parts"] = float(sum(p.area for p in lost) / sum(p.area for p in parts))
+
     # ---- all-month fill check inside the included cells (no gap filling anywhere)
     sel = include
     nan_cells = np.isnan(mm[:, sel]).sum(axis=1)
@@ -205,6 +214,29 @@ def main() -> None:
                             "units": "mm/month (area-weighted mean of monthly totals)",
                             "weights": "cos(latitude)", "gap_filling": "none"},
     })
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        r = region.astype(float)
+        r[r == 0] = np.nan
+        colors = ["#2f6f8f", "#e0a03d", "#b5542f", "#6b8e4e", "#7a5c9e", "#999999"][:args.k]
+        fig, ax = plt.subplots(figsize=(12, 4.8))
+        ax.pcolormesh(lon, lat, r, cmap=matplotlib.colors.ListedColormap(colors), shading="nearest")
+        for p in parts:
+            ax.plot(*p.exterior.xy, lw=0.3, c="k")
+        ax.set_aspect("equal")
+        ax.set_xlabel("Longitude (°E)")
+        ax.set_ylabel("Latitude (°N)")
+        ax.set_title("IMERG-derived annual-cycle regions " + ", ".join(
+            f"R{i + 1} ({c})" for i, c in enumerate(["blue", "gold", "rust", "green", "purple", "grey"][:args.k]))
+            + " — not Aldrian & Susanto A/B/C", fontsize=10)
+        fig_path = DATA.parent / "docs" / "figures" / "regions_map.png"
+        fig_path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(fig_path, dpi=110, bbox_inches="tight")
+    except ImportError:
+        print("matplotlib not installed; map skipped")
+
     print("cache:", {k: v for k, v in cache_checks.items() if k != "leap_februaries_696h"})
     print("mask:", mask_stats)
     print("silhouette:", sil, "\nseed ARI:", np.round(seed_ari, 3), "\nboot ARI:",

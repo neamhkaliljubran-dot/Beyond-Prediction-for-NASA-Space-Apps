@@ -12,9 +12,9 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
 | A | Existing code preserved; ONI/RONI definitions + provenance verified | DONE |
 | B | One real IMERG granule → Indonesia box subset, validated | DONE |
 | C | 12-month contiguous sample (2024-10..2025-09), resume verified | DONE |
-| D | Full period 1998-01..2025-09 (333 granules, 5.80 GiB transfer) | NEXT — awaiting approval |
-| E | Regional series (derived clusters or labelled geographic fallback) | pending |
-| F | Anomalies + season/lag/window associations, autocorrelation-aware, FDR | pending |
+| D | Full period 1998-01..2025-09 (333 granules, 5.80 GiB transfer) | DONE |
+| E | Indonesian territory mask + IMERG-derived regions R1–R3 + regional series | DONE |
+| F | (PAUSED for methodology review) Anomalies + season/lag/window associations, autocorrelation-aware, FDR | pending |
 | G | Dynamic association network from computed metrics | pending |
 | H | Interpretable equation search, time-blocked validation vs baselines | pending |
 | I | Candidate hypotheses from computed evidence | pending |
@@ -53,13 +53,40 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
   May 268.0, Jun 231.1, Jul 183.8, Aug 265.4, Sep 274.2 (2024-10..2025-09). Box land includes
   non-Indonesian territory; not a regional result.
 
-## Full-run estimate (Stage D)
-333 granules, 5.80 GiB total transfer (CMR sizes), ≈ 13 min at measured speed, local cache
-≈ 75 MB; global files deleted after each subset. Server-side OPeNDAP subsetting
-(`opendap.earthdata.nasa.gov`) would need a new host + credential scope — not used.
+## Stage D — full run (measured)
+- 321 new + 12 cached = **333/333 months**, 1998-01..2025-09; 667 s; 0 retries, 0 failures.
+- Manifest: 333 unique months, 333 unique SHA-256, 0 byte-size mismatches vs CMR, 5.80 GiB.
+- 0 fill/NaN values in the box in any month; temp dir empty (no global files retained).
+- `time_bnds` hours == calendar days × 24 for every month (leap Februaries = 696 h).
+- Local cache `data/interim/imerg_box/` = 73 MB (gitignored, reproducible from the script).
+
+## Stage E — Indonesian territory and regions (`scripts/build_regions.py`)
+- Territory: Natural Earth 1:10m Admin-0 v5.1.1 (`ADM0_A3 == IDN`, public domain), zip SHA-256
+  in `data/provenance/regions.json`. Grid area estimate 153.08 deg² vs polygon 153.08 deg².
+- Cell rule: Indonesian fraction ≥ 0.5 (10×10 sub-points) AND IMERG water < 50 %.
+  17 842 cells touch Indonesia; **14 443 included**; 2 566 excluded as mostly non-Indonesian or
+  sea; 833 excluded only by the IMERG water criterion (coasts, large lakes, e.g. Lake Toba).
+  Included cells hold 92.6 % of Indonesian land area. 190 of 264 Natural Earth polygons (small
+  islands) contain no included cell centre: 1.27 % of Indonesian land area.
+- Regions: k-means (k = 3, a priori) on standardised 1998–2024 climatological annual cycles.
+  Labels R1–R3 — **not** Aldrian & Susanto A/B/C. Seed ARI = 1.00 (5 seeds);
+  year-bootstrap ARI median 0.82 (min 0.60, max 0.90, n = 20); silhouette k=2 0.40,
+  k=3 0.33, k=4 0.31 → k = 3 is not the silhouette optimum.
+- COMPUTATIONAL RESULT (climatology descriptors, 1998–2024):
+  R1 54 % of area, centroid 118.2 °E 3.8 °S, wettest Mar, driest Aug, single broad
+  Nov–Apr wet season. R2 28 %, 106.2 °E 1.1 °N, maxima Apr and Nov, driest Jul.
+  R3 19 %, 130.9 °E 2.6 °S, wettest Jun, driest Oct.
+  These shapes *qualitatively resemble* the published monsoonal / semi-monsoonal /
+  anti-monsoonal types; no boundary equivalence is claimed or tested.
+- Series: `data/processed/imerg_regional_monthly.csv`, R1–R3 + ALL, 333 months each,
+  mm/month, cos-latitude area weights, valid-area fraction 1.0 every month, no gap filling.
+- Map: `docs/figures/regions_map.png`. Regions are not forced to be contiguous; a few
+  outlying cells exist (e.g. R2 cells east of 127 °E).
 
 ## Open issues
-- Region definitions restricted to Indonesia need a country boundary; no boundary dataset
-  is available yet in this environment (decision needed in Stage E).
+- Regions use the full period's climatology (annual cycle only, not ENSO); a held-out period
+  for Stage H/I validation is therefore not fully independent of the region definition.
+- Natural Earth boundaries are generalised; land/sea thresholds (50 %) are untested choices —
+  sensitivity analysis pending.
 - IMERG 1998-01..2000-05 is TRMM-era input; NASA documents caveats.
 - The `gpm1.gesdisc.eosdis.nasa.gov` credential is unused (files are served elsewhere).
