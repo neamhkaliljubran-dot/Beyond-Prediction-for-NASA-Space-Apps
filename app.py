@@ -21,7 +21,10 @@ from beyond_prediction import network as gnet
 from beyond_prediction.provenance import DATA, read_json
 from beyond_prediction.visuals import concept_network_svg, starfield_html
 
-st.set_page_config(page_title="Beyond Prediction · Team Hypatia", layout="wide")
+PAGE_TITLE = "Meta Prediction · Team Hypatia"
+PAGE_DESCRIPTION = ("An Earth System Hypothesis Discovery Engine — exploring patterns in Earth's climate data "
+                    "to generate and test scientific hypotheses.")
+st.set_page_config(page_title=PAGE_TITLE, layout="wide")
 
 QUESTION = ("How do relationships between ENSO variability in the Pacific Ocean and rainfall "
             "across different regions of Indonesia change over time and across seasons, and do "
@@ -875,3 +878,15 @@ data (CHIRPS, BMKG gauges) has not yet been performed. Associations are not caus
         "<br>Data: NASA GPM IMERG V07B · NOAA CPC RONI/ONI · Natural Earth. Team Hypatia · NASA Space Apps 2026.</div>",
         unsafe_allow_html=True)
 
+# ---------------------------------------------------------------- page metadata
+# Streamlit has no API for <meta> tags, so description / Open Graph / Twitter tags are added to the page head
+# by script. Browsers and JavaScript-running crawlers see them; link-preview bots that only read the raw HTML
+# (e.g. WhatsApp) do not execute this script — see DEPLOY.md.
+_meta = {"description": PAGE_DESCRIPTION, "og:title": PAGE_TITLE, "og:description": PAGE_DESCRIPTION,
+         "og:type": "website", "twitter:card": "summary", "twitter:title": PAGE_TITLE,
+         "twitter:description": PAGE_DESCRIPTION}
+components.html("<script>const d = window.parent.document;" + "".join(
+    f"(() => {{ const k = {k!r}, v = {v!r}; const attr = k.startsWith('og:') ? 'property' : 'name';"
+    f" let m = d.head.querySelector('meta[' + attr + '=\"' + k + '\"]');"
+    f" if (!m) {{ m = d.createElement('meta'); m.setAttribute(attr, k); d.head.appendChild(m); }}"
+    f" m.setAttribute('content', v); }})();" for k, v in _meta.items()) + "</script>", height=0)

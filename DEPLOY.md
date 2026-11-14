@@ -36,3 +36,14 @@ Then open http://localhost:8501 and press **Run Analysis**.
 pip install -r requirements-pipeline.txt
 python -m pytest -q
 ```
+
+## Page title and link previews
+- `st.set_page_config(page_title="Meta Prediction · Team Hypatia")` sets the browser-tab title.
+- `app.py` adds description, Open Graph and Twitter tags to the page head with a small script, because Streamlit
+  has no API for `<meta>` tags. Browsers and crawlers that run JavaScript see them.
+- Link-preview bots (WhatsApp, iMessage, Slack, Facebook and others) usually read only the raw HTML. For a
+  Streamlit app that raw HTML is Streamlit's own page shell (`<title>Streamlit</title>`), which the app cannot
+  edit, so those previews may still show Streamlit's generic title and no custom image.
+- A fully custom preview needs a page you control in front of the app, for example a tiny static redirect page
+  (GitHub Pages) with your own `og:` tags and image that links to the Streamlit URL, or self-hosting with an edited
+  `index.html`.
