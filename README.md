@@ -18,7 +18,7 @@ investigational framework**, not an established theory.
 | Stage F exploratory associations (discovery period 1998–2019; test 2020–2025 held out) | done (`docs/STAGE_F_FINDINGS.md`) |
 | Stage H equation discovery, frozen selection, held-out test | done (`docs/STAGE_H_EQUATION.md`) |
 | Stage G dynamic association network (cached, interactive) | done (`docs/STAGE_G_NETWORK.md`) |
-| Candidate hypotheses + integrated answer | pending (review) |
+| Stage I candidate hypothesis (direct between-region test), verification panels, integrated answer | done (`docs/STAGE_I_HYPOTHESIS_AND_ANSWER.md`) |
 | Streamlit app shell with workflow, outputs, evidence, provenance | done (`app.py`) |
 
 ## Run
@@ -42,6 +42,7 @@ python scripts/run_equation_search.py test
 python scripts/verify_stage_h_metrics.py
 python scripts/run_iod_sensitivity.py
 python scripts/build_network.py
+python scripts/run_hypothesis_test.py
 ```
 IMERG downloads need a NASA Earthdata Login account that has authorised the
 "NASA GESDISC DATA ARCHIVE" application.

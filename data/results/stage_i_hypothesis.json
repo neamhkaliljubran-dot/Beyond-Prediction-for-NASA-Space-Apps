@@ -1,0 +1,476 @@
+{
+  "built_utc": "2026-11-14T21:38:57+00:00",
+  "hypothesis": {
+    "statement": "During DJF, the association between RONI and monthly rainfall anomalies in eastern Indonesia (R3) differs from that in R1 and R2: R3 rainfall decreases more per degC of RONI.",
+    "H0": "beta_R3 = beta_R1 and beta_R3 = beta_R2 (DJF, lag 0, mm/month per degC)",
+    "H1": "beta_R3 != beta_R1 and beta_R3 != beta_R2 (expected direction: beta_R3 < beta_Rk)",
+    "falsification": "Rejected in new data if the R3-minus-Rk slope contrasts are not negative with 95% CIs excluding 0 in an independent rainfall product or gauge network (e.g. CHIRPS, BMKG stations) over the same or later years.",
+    "spec": "Stage I: primary candidate hypothesis — does the DJF ENSO–rainfall coefficient differ\nbetween eastern Indonesia (R3) and R1/R2?\n\nPre-stated specification (written before running):\n  Coefficient   beta_k = OLS slope of rainfall anomaly (mm/month) on RONI (degC), DJF rainfall\n                months, lag 0 (RONI centred on the rainfall month), region k.\n  H0            beta_R3 = beta_R1   and   beta_R3 = beta_R2   (two contrasts)\n  H1            beta_R3 != beta_Rk  (two-sided); the Stage F direction suggests beta_R3 < beta_Rk.\n  Direct test   Because all regions share the same RONI values and months,\n                beta_R3 - beta_Rk = slope of d(t) = y_R3(t) - y_Rk(t) on RONI(t) exactly.\n                The contrast is therefore tested as one regression, which keeps shared ENSO\n                observations and cross-region rainfall correlation intact.\n  Inference     (1) phase-randomised RONI surrogates (persistence-preserving), 2000 draws;\n                (2) effective-sample-size t-test from the ACFs of RONI and d;\n                (3) 95% CI from a joint 2-year moving-block bootstrap of season-years\n                    (all regions resampled together).\n                Holm correction across the 2 contrasts (surrogate p is primary).\n  Decision      \"Supported in the discovery data\" if both Holm-adjusted surrogate p < 0.05 and both\n                bootstrap CIs exclude 0. Otherwise \"not supported\"."
+  },
+  "A_primary_in_sample": {
+    "label": "A: discovery 1998-2019 (in-sample)",
+    "period": [
+      "1998-01",
+      "2019-12"
+    ],
+    "lag": 0,
+    "n_months": 66,
+    "n_season_years": 23,
+    "slopes": {
+      "R1": {
+        "beta": -2.591895354675228,
+        "r": -0.08672708275510006,
+        "ci95": [
+          -9.815826873931098,
+          6.942018762202562
+        ]
+      },
+      "R2": {
+        "beta": 3.772062870074605,
+        "r": 0.09557216286358244,
+        "ci95": [
+          -4.859077704549412,
+          12.890127769351796
+        ]
+      },
+      "R3": {
+        "beta": -15.893330366193052,
+        "r": -0.4290438627045499,
+        "ci95": [
+          -24.794537562675423,
+          -11.023352127191664
+        ]
+      }
+    },
+    "contrasts": {
+      "R3-R1": {
+        "delta_beta": -13.30143501151782,
+        "ci95": [
+          -29.232530867156523,
+          -3.4077937031092573
+        ],
+        "p_surrogate": 0.09745127436281859,
+        "n_eff": 42.967539059819124,
+        "p_ess": 0.016432993018776376,
+        "check_equals_difference_of_slopes": true,
+        "p_holm_surrogate": 0.09745127436281859
+      },
+      "R3-R2": {
+        "delta_beta": -19.66539323626765,
+        "ci95": [
+          -34.583361509627046,
+          -8.46292215475381
+        ],
+        "p_surrogate": 0.04397801099450275,
+        "n_eff": 50.22441337823849,
+        "p_ess": 0.007769885011629977,
+        "check_equals_difference_of_slopes": true,
+        "p_holm_surrogate": 0.0879560219890055
+      }
+    },
+    "decision_rule_met": false
+  },
+  "B_held_out": {
+    "label": "B: held-out 2020-2025 (temporal check)",
+    "period": [
+      "2020-01",
+      "2025-09"
+    ],
+    "lag": 0,
+    "n_months": 17,
+    "n_season_years": 6,
+    "slopes": {
+      "R1": {
+        "beta": -9.377299669148314,
+        "r": -0.22720323567541617,
+        "ci95": [
+          -76.19478879510615,
+          4.377975170241346
+        ]
+      },
+      "R2": {
+        "beta": 18.881419744108634,
+        "r": 0.3135972222935468,
+        "ci95": [
+          2.5840175372058933,
+          51.70948873315781
+        ]
+      },
+      "R3": {
+        "beta": -27.458702533567603,
+        "r": -0.6198679483363054,
+        "ci95": [
+          -55.68870828170983,
+          -16.508398283689257
+        ]
+      }
+    },
+    "contrasts": {
+      "R3-R1": {
+        "delta_beta": -18.08140286441928,
+        "ci95": [
+          -39.55603905040135,
+          16.39532887443109
+        ],
+        "p_surrogate": 0.30134932533733133,
+        "n_eff": 17.0,
+        "p_ess": 0.07883549745722496,
+        "check_equals_difference_of_slopes": true,
+        "p_holm_surrogate": 0.36881559220389803
+      },
+      "R3-R2": {
+        "delta_beta": -46.34012227767623,
+        "ci95": [
+          -107.39819701486763,
+          -36.911795876979724
+        ],
+        "p_surrogate": 0.18440779610194902,
+        "n_eff": 15.020910559736272,
+        "p_ess": 0.004899340953272143,
+        "check_equals_difference_of_slopes": true,
+        "p_holm_surrogate": 0.36881559220389803
+      }
+    },
+    "decision_rule_met": false
+  },
+  "C_sensitivity": {
+    "k3train regions, discovery": {
+      "label": "C1",
+      "period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "lag": 0,
+      "n_months": 66,
+      "n_season_years": 23,
+      "slopes": {
+        "R1": {
+          "beta": -4.081843126878708,
+          "r": -0.13567833292230583,
+          "ci95": [
+            -10.804547516526808,
+            5.89975237311741
+          ]
+        },
+        "R2": {
+          "beta": 4.894405413534485,
+          "r": 0.12224403390135223,
+          "ci95": [
+            -4.153365230506372,
+            14.066471425345378
+          ]
+        },
+        "R3": {
+          "beta": -13.878453955494804,
+          "r": -0.3825035922686301,
+          "ci95": [
+            -23.69269740168366,
+            -8.66096041407374
+          ]
+        }
+      },
+      "contrasts": {
+        "R3-R1": {
+          "delta_beta": -9.796610828616101,
+          "ci95": [
+            -26.596804222561396,
+            -0.6237188650946595
+          ],
+          "p_surrogate": 0.17041479260369816,
+          "n_eff": 43.70895850999409,
+          "p_ess": 0.07331211014314139,
+          "check_equals_difference_of_slopes": true,
+          "p_holm_surrogate": 0.17041479260369816
+        },
+        "R3-R2": {
+          "delta_beta": -18.77285936902929,
+          "ci95": [
+            -34.74189721255514,
+            -8.301888353473254
+          ],
+          "p_surrogate": 0.05997001499250375,
+          "n_eff": 50.74725147449654,
+          "p_ess": 0.012247596700349849,
+          "check_equals_difference_of_slopes": true,
+          "p_holm_surrogate": 0.1199400299850075
+        }
+      },
+      "decision_rule_met": false
+    },
+    "standardised anomalies, discovery": {
+      "label": "C2",
+      "period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "lag": 0,
+      "n_months": 66,
+      "n_season_years": 23,
+      "slopes": {
+        "R1": {
+          "beta": -0.07169307705818981,
+          "r": -0.07710057811110856,
+          "ci95": [
+            -0.27634867288311155,
+            0.20506945243524038
+          ]
+        },
+        "R2": {
+          "beta": 0.0966044682131805,
+          "r": 0.10389092856632491,
+          "ci95": [
+            -0.11139368697911509,
+            0.3221832473405137
+          ]
+        },
+        "R3": {
+          "beta": -0.3846691930864773,
+          "r": -0.4136831390906669,
+          "ci95": [
+            -0.6157786791180128,
+            -0.25078254412689965
+          ]
+        }
+      },
+      "contrasts": {
+        "R3-R1": {
+          "delta_beta": -0.31297611602828745,
+          "ci95": [
+            -0.7481005426530447,
+            -0.03838349438474544
+          ],
+          "p_surrogate": 0.1549225387306347,
+          "n_eff": 43.26552811038183,
+          "p_ess": 0.0382870310483909,
+          "check_equals_difference_of_slopes": true,
+          "p_holm_surrogate": 0.1549225387306347
+        },
+        "R3-R2": {
+          "delta_beta": -0.48127366129965776,
+          "ci95": [
+            -0.8661920106167308,
+            -0.22135754677927086
+          ],
+          "p_surrogate": 0.034482758620689655,
+          "n_eff": 55.5746474303603,
+          "p_ess": 0.004610962053195485,
+          "check_equals_difference_of_slopes": true,
+          "p_holm_surrogate": 0.06896551724137931
+        }
+      },
+      "decision_rule_met": false
+    },
+    "lag 1, discovery": {
+      "label": "C3-lag1",
+      "period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "lag": 1,
+      "n_months": 66,
+      "n_season_years": 23,
+      "slopes": {
+        "R1": {
+          "beta": -1.5670334651715696,
+          "r": -0.055724982306039055,
+          "ci95": [
+            -8.46145489199742,
+            7.605477919155233
+          ]
+        },
+        "R2": {
+          "beta": 3.418549787147172,
+          "r": 0.09205106006255916,
+          "ci95": [
+            -5.07714858632447,
+            12.363408672275103
+          ]
+        },
+        "R3": {
+          "beta": -14.739110332457814,
+          "r": -0.42285595003796256,
+          "ci95": [
+            -22.791304144867333,
+            -10.309899746960047
+          ]
+        }
+      },
+      "contrasts": {
+        "R3-R1": {
+          "delta_beta": -13.17207686728625,
+          "ci95": [
+            -28.60171373164243,
+            -3.856198645142027
+          ],
+          "p_surrogate": 0.09145427286356822,
+          "n_eff": 43.00889989183328,
+          "p_ess": 0.011197844617096171,
+          "check_equals_difference_of_slopes": true,
+          "p_holm_surrogate": 0.12493753123438281
+        },
+        "R3-R2": {
+          "delta_beta": -18.15766011960499,
+          "ci95": [
+            -31.94632308787214,
+            -8.027467919257939
+          ],
+          "p_surrogate": 0.062468765617191405,
+          "n_eff": 50.21896117120857,
+          "p_ess": 0.009103412211636838,
+          "check_equals_difference_of_slopes": true,
+          "p_holm_surrogate": 0.12493753123438281
+        }
+      },
+      "decision_rule_met": false
+    },
+    "lag 2, discovery": {
+      "label": "C3-lag2",
+      "period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "lag": 2,
+      "n_months": 66,
+      "n_season_years": 23,
+      "slopes": {
+        "R1": {
+          "beta": -0.8380851866669626,
+          "r": -0.029003617264365875,
+          "ci95": [
+            -7.766613233260993,
+            8.523429414040013
+          ]
+        },
+        "R2": {
+          "beta": 3.045931451053214,
+          "r": 0.07981772464281568,
+          "ci95": [
+            -5.22415918063797,
+            12.313452753465459
+          ]
+        },
+        "R3": {
+          "beta": -14.27772897569078,
+          "r": -0.39863244456685737,
+          "ci95": [
+            -21.905122874119524,
+            -10.217803241293723
+          ]
+        }
+      },
+      "contrasts": {
+        "R3-R1": {
+          "delta_beta": -13.43964378902382,
+          "ci95": [
+            -28.702623934057225,
+            -3.624415012831729
+          ],
+          "p_surrogate": 0.06746626686656672,
+          "n_eff": 43.03085739833699,
+          "p_ess": 0.011810034053099853,
+          "check_equals_difference_of_slopes": true,
+          "p_holm_surrogate": 0.1329335332333833
+        },
+        "R3-R2": {
+          "delta_beta": -17.323660426744,
+          "ci95": [
+            -30.609676126562785,
+            -7.284250828005798
+          ],
+          "p_surrogate": 0.06646676661669165,
+          "n_eff": 50.194284797704114,
+          "p_ess": 0.016013115613126953,
+          "check_equals_difference_of_slopes": true,
+          "p_holm_surrogate": 0.1329335332333833
+        }
+      },
+      "decision_rule_met": false
+    },
+    "lag 3, discovery": {
+      "label": "C3-lag3",
+      "period": [
+        "1998-01",
+        "2019-12"
+      ],
+      "lag": 3,
+      "n_months": 66,
+      "n_season_years": 23,
+      "slopes": {
+        "R1": {
+          "beta": -0.20724268037466442,
+          "r": -0.006544019945911712,
+          "ci95": [
+            -7.6502989632229,
+            11.761370872939116
+          ]
+        },
+        "R2": {
+          "beta": 2.785207172301607,
+          "r": 0.0665944652018699,
+          "ci95": [
+            -6.665293275275723,
+            12.978283440181851
+          ]
+        },
+        "R3": {
+          "beta": -14.271415343636125,
+          "r": -0.3635649163146016,
+          "ci95": [
+            -22.58074721839227,
+            -10.02627306602561
+          ]
+        }
+      },
+      "contrasts": {
+        "R3-R1": {
+          "delta_beta": -14.064172663261461,
+          "ci95": [
+            -32.52719682677292,
+            -4.053872782424321
+          ],
+          "p_surrogate": 0.06646676661669165,
+          "n_eff": 43.062003500750954,
+          "p_ess": 0.01656261181626179,
+          "check_equals_difference_of_slopes": true,
+          "p_holm_surrogate": 0.1329335332333833
+        },
+        "R3-R2": {
+          "delta_beta": -17.056622515937732,
+          "ci95": [
+            -32.24469981429024,
+            -6.425364699310304
+          ],
+          "p_surrogate": 0.06746626686656672,
+          "n_eff": 50.17794712710072,
+          "p_ess": 0.031524712372125244,
+          "check_equals_difference_of_slopes": true,
+          "p_holm_surrogate": 0.1329335332333833
+        }
+      },
+      "decision_rule_met": false
+    }
+  },
+  "conclusion": {
+    "in_sample": "decision rule NOT met in the discovery data",
+    "held_out": "same sign as discovery for both contrasts: True; R3-R1: -18.1 [-39.6, +16.4] Holm p=0.369; R3-R2: -46.3 [-107.4, -36.9] Holm p=0.369",
+    "status": "candidate hypothesis; not independently validated"
+  },
+  "equation_panel": {
+    "frozen_model": "month-varying slope@lag0",
+    "frozen_coefficients": {
+      "a": -5.724663787125246,
+      "b_m9": -59.64496648186664,
+      "b_m10": -65.47067221202646,
+      "b_m11": -21.675626393525803
+    },
+    "linear_lag0_coefficients": {
+      "a": -5.480662930776814,
+      "b": -45.159020403404604
+    },
+    "climatology_mm_month": {
+      "9": 237.65086363636362,
+      "10": 218.1551818181818,
+      "11": 222.4836818181818
+    }
+  }
+}

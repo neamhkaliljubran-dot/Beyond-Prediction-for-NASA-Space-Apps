@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -108,7 +109,8 @@ if st.session_state.get("ran"):
          (RESULTS / "stage_h_test.json").exists()),
         ("Dynamic association network across seasons and time windows",
          (RESULTS / "network_edges.csv").exists()),
-        ("Candidate hypotheses with pre-stated selection criteria and validation plan", False),
+        ("Candidate hypothesis with a direct between-region test and validation plan",
+         (RESULTS / "stage_i_hypothesis.json").exists()),
     ]
     for i, (label, done) in enumerate(steps, 1):
         st.markdown(f"{'✅' if done else '⏳'} **Step {i}.** {label} — "
@@ -122,11 +124,64 @@ if st.session_state.get("ran"):
     pending = ("**Not yet computed.** This output requires the IMERG regional rainfall series "
                "(step 3) and the association analysis (step 5). No placeholder values are shown.")
     with o1:
-        st.warning(pending)
-        st.markdown("*Planned selection criteria (fixed before seeing results):* FDR-adjusted "
-                    "q < 0.05 using autocorrelation-adjusted inference, |r| ≥ 0.3, and a "
-                    "consistent sign in ≥ 70 % of time windows. If no relationship qualifies, "
-                    "the null result is reported.")
+        hyp = read_json(RESULTS / "stage_i_hypothesis.json")
+        if not hyp:
+            st.warning("Not yet computed (Stage I).")
+        else:
+            hh = hyp["hypothesis"]
+            st.markdown("**CANDIDATE HYPOTHESIS** (generated from the Stage F/G evidence; not independently validated)")
+            st.markdown(f"> {hh['statement']}")
+            st.markdown(f"- **H₀:** {hh['H0']}  \n- **H₁:** {hh['H1']}")
+            st.markdown("**TEST HYPOTHESIS — direct test of the difference between regional coefficients.** "
+                        "Because every region is paired with the same RONI values, β_R3 − β_Rk equals the "
+                        "slope of the rainfall *difference* (R3 − Rk) on RONI. That single slope is tested with "
+                        "persistence-preserving RONI surrogates (primary), an effective-sample-size t-test, and a "
+                        "joint season-year block bootstrap; Holm correction across the two contrasts.")
+            blocks = {"A — discovery data 1998–2019 (in-sample; generated the hypothesis)": hyp["A_primary_in_sample"],
+                      "B — held-out months 2020–2025 (temporal check; low power)": hyp["B_held_out"],
+                      **{f"Sensitivity — {k}": v for k, v in hyp["C_sensitivity"].items()}}
+            bk = st.selectbox("Data used for the test", list(blocks), key="hyp_block")
+            blk = blocks[bk]
+            sl = pd.DataFrame([{"region": r, "β (mm/month per °C)" if "standardised" not in bk else "β (SD per °C)": v["beta"],
+                                "95% CI": f"[{v['ci95'][0]:.2f}, {v['ci95'][1]:.2f}]", "r": v["r"]}
+                               for r, v in blk["slopes"].items()])
+            st.markdown(f"**Estimated regional effects** — DJF, lag {blk['lag']}, {blk['n_months']} months "
+                        f"({blk['n_season_years']} season-years)")
+            st.dataframe(sl.round(3), use_container_width=True, hide_index=True, key="hyp_slopes")
+            ct = pd.DataFrame([{"contrast": c, "Δβ = β_R3 − β_Rk": v["delta_beta"],
+                                "95% CI (block bootstrap)": f"[{v['ci95'][0]:.2f}, {v['ci95'][1]:.2f}]",
+                                "p (surrogate)": v["p_surrogate"], "p Holm (surrogate)": v["p_holm_surrogate"],
+                                "p (eff. sample size)": v["p_ess"], "n_eff": v["n_eff"]}
+                               for c, v in blk["contrasts"].items()])
+            st.markdown("**Between-region contrasts (the actual hypothesis test)**")
+            st.dataframe(ct.round(4), use_container_width=True, hide_index=True, key="hyp_contrasts")
+            if blk["decision_rule_met"]:
+                st.success("Decision: H₀ rejected for both contrasts under the pre-stated rule "
+                           "(Holm surrogate p < 0.05 and CIs excluding 0) for this data block.")
+            else:
+                st.error("Decision: H₀ NOT rejected under the pre-stated rule (both Holm-adjusted surrogate "
+                         "p < 0.05 AND both CIs excluding 0). The hypothesis is not supported at α = 0.05 by this test.")
+            st.caption("Rule fixed in scripts/run_hypothesis_test.py before running. The surrogate test is primary "
+                       "because it preserves ENSO persistence; the effective-sample-size p and bootstrap CI are "
+                       "shown so disagreements between methods stay visible.")
+            pts = pd.read_csv(RESULTS / "stage_i_djf_points.csv")
+            pb = pts[pts.block.str.startswith(bk[0])] if bk[0] in "AB" else pts[pts.block.str.startswith("A")]
+            fs = go.Figure()
+            for reg, col in [("R1", "#2f6f8f"), ("R2", "#e0a03d"), ("R3", "#b5542f")]:
+                yv = pb[f"anom_{reg}"]
+                fs.add_scatter(x=pb.roni, y=yv, mode="markers", name=reg, marker=dict(color=col, size=7, opacity=.7))
+                b = np.polyfit(pb.roni, yv, 1)
+                xx = np.linspace(pb.roni.min(), pb.roni.max(), 2)
+                fs.add_scatter(x=xx, y=np.polyval(b, xx), mode="lines", line=dict(color=col, width=3),
+                               name=f"{reg} fit: {b[0]:+.1f} mm/month per °C")
+            fs.add_hline(y=0, line_color="#bbb")
+            fs.update_layout(height=340, xaxis_title="RONI (°C), centred on the rainfall month",
+                             yaxis_title="DJF rainfall anomaly (mm/month)", margin=dict(l=10, r=10, t=60, b=10),
+                             legend=dict(orientation="h", y=1.18, x=0))
+            st.plotly_chart(fs, use_container_width=True, key=f"hyp_fig_{bk[0]}")
+            st.markdown(f"**Conclusion.** In-sample: {hyp['conclusion']['in_sample']}. Held-out: "
+                        f"{hyp['conclusion']['held_out']}. Status: {hyp['conclusion']['status']}.")
+            st.markdown(f"**Falsification / independent validation plan.** {hh['falsification']}")
     with o2:
         sel = read_json(RESULTS / "stage_h_selection.json")
         tst = read_json(RESULTS / "stage_h_test.json")
@@ -189,6 +244,36 @@ if st.session_state.get("ran"):
                                                  "msess_selected", "msess_linear_lag0", "msess_persistence"]]
             with st.expander("All 12 targets (validation choice and test skill)"):
                 st.dataframe(allt.round(2), use_container_width=True, hide_index=True)
+
+            ep = pd.read_csv(RESULTS / "stage_i_equation_panel.csv", parse_dates=["date"])
+            st.markdown("---\n**TEST EQUATION — substitute a real held-out observation into the frozen equation**")
+            mlabel = {d.strftime("%Y-%m"): d for d in ep.date}
+            pick = st.selectbox("Held-out month (R3, Sep–Nov, 2020–2025)", list(mlabel), key="eq_month",
+                                index=list(mlabel).index(ex["month"]) if ex["month"] in mlabel else 0)
+            row = ep[ep.date == mlabel[pick]].iloc[0]
+            mm = int(row.month)
+            bkey = {9: "b_m9", 10: "b_m10", 11: "b_m11"}[mm]
+            a_ = cf["a"]["value"]
+            b_ = cf[bkey]["value"]
+            anom_live = a_ + b_ * row.x
+            total_live = row.C + anom_live
+            assert abs(total_live - row.pred_frozen) < 1e-6
+            st.markdown(
+                f"1. RONI ({pick}, NOAA CPC, centred 3-month mean) = **{row.x:+.2f} °C**  \n"
+                f"2. ΔP = a + b_{['Sep','Oct','Nov'][mm-9]} × RONI = {a_:.4f} + ({b_:.4f}) × ({row.x:+.2f}) "
+                f"= **{anom_live:+.2f} mm/month**  \n"
+                f"3. P̂ = C({['Sep','Oct','Nov'][mm-9]}) + ΔP = {row.C:.2f} + {anom_live:+.2f} = **{total_live:.2f} mm/month**")
+            cmp_ = pd.DataFrame([
+                {"model": "Frozen Stage H equation (month-varying slope)", "estimate (mm/month)": total_live,
+                 "estimate − observed (mm/month)": total_live - row.P},
+                {"model": "Reference: linear lag-0 (one slope)", "estimate (mm/month)": row.pred_linear_lag0,
+                 "estimate − observed (mm/month)": row.pred_linear_lag0 - row.P},
+                {"model": "Reference: climatology (1998–2019 mean)", "estimate (mm/month)": row.pred_climatology,
+                 "estimate − observed (mm/month)": row.pred_climatology - row.P},
+                {"model": "OBSERVED: IMERG V07B, region R3", "estimate (mm/month)": row.P, "estimate − observed (mm/month)": 0.0}])
+            st.dataframe(cmp_.round(2), use_container_width=True, hide_index=True, key="eq_compare")
+            st.caption("One month is an illustration, not evidence; the 16-month test skill above is the evaluation. "
+                       "Coefficients are frozen (fit 1998–2019); this month was never used for fitting or selection.")
     with o3:
         if not (RESULTS / "network_edges.csv").exists():
             st.warning("Not yet computed (Stage G).")
@@ -253,6 +338,53 @@ if st.session_state.get("ran"):
                        "excludes 0 with opposite signs in different windows; sign-variable = sign changes "
                        "without that (inconclusive). An inconclusive or absent edge is not evidence of no "
                        "relationship.")
+
+    # ------------------------------------------------------------ integrated answer
+    hyp_i = read_json(RESULTS / "stage_i_hypothesis.json")
+    tst_i = read_json(RESULTS / "stage_h_test.json")
+    if hyp_i and tst_i and (RESULTS / "network_patterns.csv").exists():
+        st.divider()
+        st.subheader("Integrated scientific answer")
+        st.markdown(f"*{QUESTION}*")
+        pat = pd.read_csv(RESULTS / "network_patterns.csv")
+        ee = pd.read_csv(RESULTS / "network_edges.csv")
+        full0 = ee[(ee.kind == "ENSO-region") & (ee.window == gnet.FULL) & (ee.lag == 0)]
+        sup = {s: ", ".join(full0[(full0.season == s) & (full0.status == "supported")].target) or "none"
+               for s in ["DJF", "MAM", "JJA", "SON"]}
+        pc = pat[pat.kind == "ENSO-region"].pattern.value_counts()
+        r3 = pd.DataFrame(tst_i["results"]).set_index("target").loc["R3-SON"]
+        A = hyp_i["A_primary_in_sample"]["contrasts"]
+        st.markdown(f"""
+**Across seasons — COMPUTATIONAL RESULT (1998–2019).** ENSO–rainfall associations are strongly seasonal.
+Regions with a statistically supported association at lag 0 (BH q < 0.05): DJF: {sup['DJF']} · MAM: {sup['MAM']} ·
+JJA: {sup['JJA']} · SON: {sup['SON']}. Every supported association is negative — less rain when RONI is high
+(El Niño-like), more when it is low (La Niña-like). This agrees with PUBLISHED KNOWLEDGE that El Niño dries much
+of Indonesia mainly in the dry and transition seasons.
+
+**Over time — COMPUTATIONAL RESULT, exploratory.** Across twelve overlapping 11-year windows, {pc.get('recurring', 0)} of
+48 ENSO→region edges are *recurring*, {pc.get('weak-recurring', 0)} weak-recurring, {pc.get('sign-variable', 0)}
+sign-variable (inconclusive) and {pc.get('divergent', 0)} divergent. No relationship showed a detectable change
+between 1998–2008 and 2009–2019, but 22 years can only detect large changes. The one hint of change (R2 in DJF
+turning positive in recent windows) is inconclusive.
+
+**Recurring or divergent patterns in the network.** The June–November pattern recurs in every region and window.
+The clearest divergence is *spatial*, not temporal: in DJF only eastern Indonesia (R3) carries an ENSO edge, and its
+rainfall decouples from the north-west (R2–R3 r ≈ 0.04).
+
+**Mathematical relationship — COMPUTATIONAL RESULT, held-out tested.** For R3 in Sep–Nov, the frozen equation
+ΔP = a + b_m·RONI reached a test skill of {r3.msess_selected:.2f} vs climatology (RMSE {r3.rmse_selected:.1f} vs
+{r3.rmse_climatology:.1f} mm/month); the simpler one-slope model scored {r3.msess_linear_lag0:.2f}, so the
+month-specific slopes are not shown to add value. It is a concurrent statistical relationship, not a forecast or law.
+
+**CANDIDATE HYPOTHESIS — DJF east–west difference.** Direct contrasts β_R3 − β_R1 = {A['R3-R1']['delta_beta']:+.1f}
+and β_R3 − β_R2 = {A['R3-R2']['delta_beta']:+.1f} mm/month per °C point in the expected direction with bootstrap CIs
+excluding 0, but the primary persistence-aware test gives Holm p = {A['R3-R1']['p_holm_surrogate']:.3f} and
+{A['R3-R2']['p_holm_surrogate']:.3f}: **not supported at α = 0.05**. The difference remains a candidate for testing
+with independent rainfall data.
+
+**INDEPENDENT VALIDATION — not yet performed.** All tests use IMERG; held-out months are temporal checks within the
+same product. Proposed: CHIRPS and BMKG gauge records, and the IOD as a co-driver (partly examined).
+""")
 
     # ------------------------------------------------------------ evidence
     st.divider()

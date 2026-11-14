@@ -17,8 +17,8 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
 | F | Anomalies + season/lag/window associations, autocorrelation-aware, FDR | DONE (exploratory; see docs/STAGE_F_FINDINGS.md) |
 | G | Dynamic association network from computed metrics | DONE (docs/STAGE_G_NETWORK.md) |
 | H | Interpretable equation search, time-blocked validation vs baselines | DONE (docs/STAGE_H_EQUATION.md) |
-| I | Candidate hypotheses from computed evidence | pending |
-| J | Integrate outputs into Streamlit, end-to-end tests, docs | pending |
+| I | Candidate hypotheses from computed evidence | DONE (docs/STAGE_I_HYPOTHESIS_AND_ANSWER.md) |
+| J | Integrate outputs into Streamlit, end-to-end tests, docs | DONE (app integrated; 35 tests incl. AppTest) |
 
 ## Verified facts
 - **ENSO** (`data/processed/enso_monthly.csv`, 1950-01..2026-09): CPC `oni.ascii.txt` matches
@@ -126,7 +126,13 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
 - Findings: supported ENSO edges at lag 0: DJF 1 (R3), MAM 0, JJA 3, SON 3; 0 divergent patterns;
   DJF spatial decoupling of R3; R2-DJF positive in recent windows but no detectable change.
 
-## NEXT: Stage I (hypotheses) + integrated answer — paused for review with the team.
+## Stage I/J — hypothesis, verification panels, integrated answer
+- Primary hypothesis (DJF: R3 coefficient differs from R1/R2) tested directly via the slope of the
+  rainfall-difference series on RONI. Discovery data: Δβ R3−R1 −13.3, R3−R2 −19.7 mm/month per °C,
+  bootstrap CIs exclude 0, ESS p 0.016 / 0.008, but primary surrogate Holm p 0.098 / 0.088 →
+  **not supported at α = 0.05**. Held-out 2020–2025: same sign, Holm p 0.37 / 0.37.
+- App: TEST HYPOTHESIS (Output 1) and TEST EQUATION (Output 2) panels; integrated answer section.
+- Frozen Stage H selection unchanged (SHA-256 check in tests).
 
 ## Open issues
 - Main regions use the 1998–2024 climatology (overlaps test). Training-only regions (1998–2013) give
