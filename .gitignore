@@ -9,3 +9,4 @@ data/raw/imerg/
 
 # Gridded IMERG box subsets (~230 KB/month) stay local; regional series are committed.
 data/interim/imerg_box/
+data/raw/naturalearth/
