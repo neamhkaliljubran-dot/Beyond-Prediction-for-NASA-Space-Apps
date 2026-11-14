@@ -14,8 +14,8 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
 | C | 12-month contiguous sample (2024-10..2025-09), resume verified | DONE |
 | D | Full period 1998-01..2025-09 (333 granules, 5.80 GiB transfer) | DONE |
 | E | Indonesian territory mask + IMERG-derived regions R1–R3 + regional series | DONE |
-| F | (PAUSED for methodology review) Anomalies + season/lag/window associations, autocorrelation-aware, FDR | pending |
-| G | Dynamic association network from computed metrics | pending |
+| F | Anomalies + season/lag/window associations, autocorrelation-aware, FDR | DONE (exploratory; see docs/STAGE_F_FINDINGS.md) |
+| G | (NEXT, after review) Dynamic association network from computed metrics | pending |
 | H | Interpretable equation search, time-blocked validation vs baselines | pending |
 | I | Candidate hypotheses from computed evidence | pending |
 | J | Integrate outputs into Streamlit, end-to-end tests, docs | pending |
@@ -83,8 +83,25 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
 - Map: `docs/figures/regions_map.png`. Regions are not forced to be contiguous; a few
   outlying cells exist (e.g. R2 cells east of 127 °E).
 
+## Stage F — associations (`scripts/run_associations.py`, `config/analysis.json`)
+- Split fixed before any ENSO–rainfall statistic: training 1998-01..2013-12, validation
+  2014-01..2019-12, **test 2020-01..2025-09 (69 months), not read so far**. Stage F used the discovery
+  period 1998-01..2019-12 only (asserted in code).
+- Anomalies: mm/month (primary), standardised and percent (supplementary), climatology
+  1998–2019. Stage H must re-estimate climatology inside each training fit.
+- Primary family: RONI × R1–R3 × DJF/MAM/JJA/SON × lags 0–3 = 48 tests. Surrogate p (2000 surrogates),
+  ESS t-test, 2-year block bootstrap CIs, BH within family. 20/48 (surrogate) and 22/48 (ESS)
+  have q < 0.05; the methods agree on 44/48.
+- Sensitivity (each with its own BH): ONI, k=2, k=3 fitted on 1998–2013, Indonesia-wide, seasonal means.
+  Exploratory: 11-yr rolling windows, non-overlapping halves. Illustrative family: SON/RONI/lag 0, Holm.
+- Key observations: negative associations in JJA and SON in all regions; DJF only in R3 (east);
+  MAM none after correction; 0/48 changes between halves detectable. Full report: `docs/STAGE_F_FINDINGS.md`.
+- Region variants: `regions_k2.json` (ARI vs main 0.39), `regions_k3train.json` (ARI 0.87).
+- App: Stage F section (heatmap, table, rolling chart, sensitivity) — step 5 marked complete.
+
 ## Open issues
-- Regions use the full period's climatology (annual cycle only, not ENSO); a held-out period
+- Main regions use the 1998–2024 climatology (overlaps test). Training-only regions (1998–2013) give
+  nearly identical associations. Regions use the full period's climatology (annual cycle only, not ENSO); a held-out period
   for Stage H/I validation is therefore not fully independent of the region definition.
 - Natural Earth boundaries are generalised; land/sea thresholds (50 %) are untested choices —
   sensitivity analysis pending.

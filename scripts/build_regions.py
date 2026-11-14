@@ -82,7 +82,12 @@ def load_cache() -> tuple[pd.PeriodIndex, np.ndarray, np.ndarray, dict]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--k", type=int, default=3)
+    ap.add_argument("--clim-years", type=int, nargs=2, default=list(CLIM_YEARS),
+                    help="years whose climatology defines the regions")
+    ap.add_argument("--tag", default="", help="suffix for sensitivity outputs, e.g. _k2")
     args = ap.parse_args()
+    clim_years = tuple(args.clim_years)
+    tag = args.tag
 
     months, mm, hours, cache_checks = load_cache()
     lsm = np.load(DATA / "interim" / "imerg_landsea_box.npz")
@@ -124,7 +129,7 @@ def main() -> None:
 
     # ---- climatological annual cycle on complete years
     yrs = months.year
-    clim_sel = (yrs >= CLIM_YEARS[0]) & (yrs <= CLIM_YEARS[1])
+    clim_sel = (yrs >= clim_years[0]) & (yrs <= clim_years[1])
     cells = mm[:, sel]                                   # (time, ncell)
     clim = np.stack([np.nanmean(cells[clim_sel & (months.month == m)], axis=0)
                      for m in range(1, 13)])             # (12, ncell)
@@ -143,7 +148,7 @@ def main() -> None:
 
     labels, centers, inertia = rg.kmeans(X, args.k, SEED)
     seed_ari = [rg.adjusted_rand(labels, rg.kmeans(X, args.k, SEED + i)[0]) for i in range(1, 6)]
-    years = np.arange(CLIM_YEARS[0], CLIM_YEARS[1] + 1)
+    years = np.arange(clim_years[0], clim_years[1] + 1)
     boot_ari = []
     for b in range(20):
         ys = rng.choice(years, size=years.size, replace=True)
@@ -165,7 +170,7 @@ def main() -> None:
                          "precip_mm_month": round(v, 3), "valid_area_frac": round(vf, 4),
                          "n_cells": int(s.sum()), "hours": hours[t]})
     series = pd.DataFrame(rows)
-    out_csv = DATA / "processed" / "imerg_regional_monthly.csv"
+    out_csv = DATA / "processed" / f"imerg_regional_monthly{tag}.csv"
     series.to_csv(out_csv, index=False)
 
     # ---- descriptors (computed) for each region
@@ -175,7 +180,7 @@ def main() -> None:
         s = region == i + 1
         w = area[s]
         r = series[series.region == nm].assign(cal=lambda d: d.month.str[5:7].astype(int))
-        r = r[r.month.str[:4].astype(int).between(*CLIM_YEARS)]
+        r = r[r.month.str[:4].astype(int).between(*clim_years)]
         cyc = r.groupby("cal")["precip_mm_month"].mean()
         peaks = [int(m) for m in range(1, 13)
                  if cyc[m] > cyc[(m - 2) % 12 + 1] and cyc[m] > cyc[m % 12 + 1]]
@@ -189,12 +194,19 @@ def main() -> None:
                     "wettest_month": int(cyc.idxmax()), "driest_month": int(cyc.idxmin()),
                     "local_maxima_months": peaks}
 
-    np.savez_compressed(DATA / "processed" / "indonesia_regions.npz", lon=lon.astype(np.float32),
+    np.savez_compressed(DATA / "processed" / f"indonesia_regions{tag}.npz", lon=lon.astype(np.float32),
                         lat=lat.astype(np.float32), indonesia_frac=frac, water_pct=water,
                         include=include, region=region)
-    write_json(DATA / "provenance" / "regions.json", {
+    main = DATA / "processed" / "indonesia_regions.npz"
+    ari_vs_main = None
+    if tag and main.exists():
+        ref = np.load(main)["region"]
+        both = include & (ref > 0)
+        ari_vs_main = rg.adjusted_rand(ref[both], region[both])
+    write_json(DATA / "provenance" / f"regions{tag}.json", {
+        "ARI_vs_main_regions": ari_vs_main,
         "built_utc": utc_now(),
-        "period": [START, END], "climatology_years": list(CLIM_YEARS),
+        "period": [START, END], "climatology_years": list(clim_years),
         "cache_checks": cache_checks,
         "territory_source": ne_meta,
         "landsea_mask": "GES DISC GPM_IMERG_LandSeaMask V2, DOI 10.5067/6P5EM1HPR3VD (percent water)",
@@ -231,7 +243,7 @@ def main() -> None:
         ax.set_title("IMERG-derived annual-cycle regions " + ", ".join(
             f"R{i + 1} ({c})" for i, c in enumerate(["blue", "gold", "rust", "green", "purple", "grey"][:args.k]))
             + " — not Aldrian & Susanto A/B/C", fontsize=10)
-        fig_path = DATA.parent / "docs" / "figures" / "regions_map.png"
+        fig_path = DATA.parent / "docs" / "figures" / f"regions_map{tag}.png"
         fig_path.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(fig_path, dpi=110, bbox_inches="tight")
     except ImportError:

@@ -1,0 +1,173 @@
+{
+  "ARI_vs_main_regions": 0.393546956658256,
+  "built_utc": "2026-11-14T21:00:37+00:00",
+  "period": [
+    "1998-01",
+    "2025-09"
+  ],
+  "climatology_years": [
+    1998,
+    2024
+  ],
+  "cache_checks": {
+    "expected_months": 333,
+    "cached_months": 333,
+    "missing_months": [],
+    "unexpected_files": [],
+    "hours_mismatch": [],
+    "leap_februaries_696h": [
+      "2000-02",
+      "2004-02",
+      "2008-02",
+      "2012-02",
+      "2016-02",
+      "2020-02",
+      "2024-02"
+    ],
+    "months_with_nan_in_included_cells": 0,
+    "max_nan_cells_in_a_month": 0
+  },
+  "territory_source": {
+    "url": "https://naciscdn.org/naturalearth/10m/cultural/ne_10m_admin_0_countries.zip",
+    "sha256": "ce1ac7036499a0edd641fbc093cd209a98f96a49d2eca8480aaacad35138a7f6",
+    "version": "5.1.1",
+    "feature": "ADM0_A3 == IDN",
+    "licence": "public domain (Natural Earth)"
+  },
+  "landsea_mask": "GES DISC GPM_IMERG_LandSeaMask V2, DOI 10.5067/6P5EM1HPR3VD (percent water)",
+  "mask": {
+    "rule": "indonesia_fraction >= 0.5 AND imerg_water_pct < 50.0",
+    "subsampling": "10 x 10 points per 0.1-degree cell",
+    "cells_touching_indonesia": 17842,
+    "cells_included": 14443,
+    "excluded_low_indonesia_fraction": 2566,
+    "excluded_by_imerg_water_only": 833,
+    "indonesian_land_area_captured_frac": 0.9261004854293873,
+    "ne_polygon_area_deg2": 153.0786077288553,
+    "grid_estimated_area_deg2": 153.08160400390625,
+    "natural_earth_polygon_parts": 264,
+    "parts_without_included_cell_centre": 190,
+    "area_share_of_those_parts": 0.012747222767964082
+  },
+  "regionalization": {
+    "method": "k-means (scikit-learn, n_init=20) on each included cell's standardised climatological annual cycle (12 values, z-scored across months)",
+    "k": 2,
+    "k_choice": "a priori, matching the number of published regions; silhouette scores reported for k=2..6",
+    "seed": 20261114,
+    "silhouette_by_k_subsample5000": {
+      "2": 0.395819126392051,
+      "3": 0.334684951904849,
+      "4": 0.3071140763013599,
+      "5": 0.27136741383269225,
+      "6": 0.2590065616802073
+    },
+    "seed_stability_ARI": [
+      0.9997015893661769,
+      0.9997015893661769,
+      0.9997015893661769,
+      0.9997015893661769,
+      0.9997015893661769
+    ],
+    "year_bootstrap_ARI_20": [
+      0.8477544864502433,
+      0.9045042627042656,
+      0.8899751623391817,
+      0.8338705859736505,
+      0.8725030283036046,
+      0.8849503411153621,
+      0.9175993897392506,
+      0.8940135832595748,
+      0.8566737555074936,
+      0.888684557437903,
+      0.9072142398500699,
+      0.9086875227606733,
+      0.9059613019988926,
+      0.828854766527998,
+      0.9185074213956295,
+      0.8522681505477647,
+      0.8687882466732556,
+      0.9163580385790755,
+      0.8461086284221179,
+      0.9494489531818013
+    ],
+    "labels": "R1..Rk ordered by cell count; NOT Aldrian & Susanto (2003) A/B/C",
+    "spatial_contiguity": "not enforced"
+  },
+  "regions": {
+    "R1": {
+      "n_cells": 10961,
+      "area_share": 0.758733131345619,
+      "centroid_lon": 113.4611845024224,
+      "centroid_lat": -2.2211536518654618,
+      "lon_range": [
+        95.25,
+        140.9499969482422
+      ],
+      "lat_range": [
+        -10.75,
+        5.550000190734863
+      ],
+      "climatology_mm_month": {
+        "1": 299.5,
+        "2": 266.9,
+        "3": 307.1,
+        "4": 290.7,
+        "5": 231.0,
+        "6": 185.8,
+        "7": 158.8,
+        "8": 161.0,
+        "9": 186.1,
+        "10": 244.8,
+        "11": 298.9,
+        "12": 326.5
+      },
+      "wettest_month": 12,
+      "driest_month": 7,
+      "local_maxima_months": [
+        3,
+        12
+      ]
+    },
+    "R2": {
+      "n_cells": 3482,
+      "area_share": 0.24126686865438093,
+      "centroid_lon": 129.1389204756082,
+      "centroid_lat": -2.0875059737722883,
+      "lon_range": [
+        115.05000305175781,
+        140.9499969482422
+      ],
+      "lat_range": [
+        -6.650000095367432,
+        4.449999809265137
+      ],
+      "climatology_mm_month": {
+        "1": 259.0,
+        "2": 244.2,
+        "3": 300.0,
+        "4": 295.6,
+        "5": 310.0,
+        "6": 314.1,
+        "7": 287.2,
+        "8": 251.2,
+        "9": 243.8,
+        "10": 226.3,
+        "11": 236.5,
+        "12": 270.0
+      },
+      "wettest_month": 6,
+      "driest_month": 10,
+      "local_maxima_months": [
+        3,
+        6,
+        12
+      ]
+    }
+  },
+  "regional_series": {
+    "file": "data/processed/imerg_regional_monthly_k2.csv",
+    "units": "mm/month (area-weighted mean of monthly totals)",
+    "weights": "cos(latitude)",
+    "gap_filling": "none"
+  }
+}

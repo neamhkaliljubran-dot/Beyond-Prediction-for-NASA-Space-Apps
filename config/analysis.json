@@ -1,0 +1,43 @@
+{
+  "_comment": "Fixed before any ENSO-rainfall statistic was computed (Stage F). Do not edit after seeing results without recording why.",
+  "split": {
+    "train": ["1998-01", "2013-12"],
+    "validation": ["2014-01", "2019-12"],
+    "test": ["2020-01", "2025-09"],
+    "discovery_period": ["1998-01", "2019-12"],
+    "notes": [
+      "Stage F exploratory statistics use the discovery period (train + validation) only; the test period is not read by Stage F.",
+      "Split boundaries refer to the RAINFALL month. ENSO predictors at month t-L may come from an earlier split; that is allowed because predictors precede or overlap the target only through the documented 3-month ENSO window.",
+      "At the 2019-12 / 2020-01 boundary, RONI centred on 2019-12 averages Nov 2019-Jan 2020, i.e. includes one test-period SST month as a predictor (no target leakage).",
+      "CPC index construction uses base periods (RONI 1991-2020; ONI centred 30-year bases) that overlap later years; this is an index-construction dependence we cannot remove."
+    ]
+  },
+  "lags_months": [0, 1, 2, 3],
+  "lag_convention": "lag L pairs rainfall in month t+L with the ENSO value centred on month t (3-month window t-1..t+1). Positive L means rainfall follows the ENSO centre month. Lags 0 and 1 overlap the ENSO averaging window; lags >= 2 are strictly after it.",
+  "seasons": {"DJF": [12, 1, 2], "MAM": [3, 4, 5], "JJA": [6, 7, 8], "SON": [9, 10, 11]},
+  "season_assignment": "by rainfall (target) month",
+  "primary_index": "roni_anom_degC",
+  "sensitivity_index": "oni_anom_degC",
+  "primary_regions": ["R1", "R2", "R3"],
+  "primary_family": "RONI x {R1,R2,R3} x {DJF,MAM,JJA,SON} x lags {0,1,2,3} = 48 tests, Benjamini-Hochberg q within this family only",
+  "illustrative_family": {"index": "RONI", "season": "SON", "lag": 0, "regions": ["R1", "R2", "R3"],
+                          "correction": "Holm within these 3 tests",
+                          "status": "illustrative prespecified test family; regions are data-derived, so not fully confirmatory"},
+  "inference": {
+    "n_surrogates": 2000,
+    "surrogate": "phase-randomised (Fourier) surrogates of the ENSO series over the needed months; rainfall held fixed; two-sided p = (1 + #|r_s| >= |r|) / (1 + N)",
+    "n_bootstrap": 2000,
+    "bootstrap": "moving-block bootstrap of season-years, block length 2 years, for 95% percentile CIs of r and slope",
+    "ess_max_lag": 24,
+    "ess": "n_eff = n^2 / sum_ij rho_x(|t_i-t_j|) rho_y(|t_i-t_j|), ACFs from the full discovery-period monthly series, truncated at 24 months",
+    "alpha": 0.05,
+    "seed": 20261114
+  },
+  "rolling": {"window_years": 11, "step_years": 1, "lag": "all", "n_bootstrap": 500,
+              "status": "exploratory visualisation only; overlapping windows are not independent tests"},
+  "climatology": {
+    "stage_f": "calendar-month means and SDs over the discovery period 1998-01..2019-12",
+    "modelling": "Stage H must re-estimate climatology from its own training data inside each fit",
+    "descriptive_full_record": "regions.json climatology tables use 1998-2024 (descriptive only)"
+  }
+}

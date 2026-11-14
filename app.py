@@ -30,6 +30,7 @@ ENSO_PROV = DATA / "provenance" / "enso.json"
 IMERG_PROV = DATA / "provenance" / "imerg_verification.json"
 REGIONS_PROV = DATA / "provenance" / "regions.json"
 REGION_MAP = Path(__file__).parent / "docs" / "figures" / "regions_map.png"
+RESULTS = DATA / "results"
 
 
 @st.cache_data
@@ -95,7 +96,8 @@ if st.session_state.get("ran"):
         ("Verify GPM IMERG V07 monthly collection, coverage, units, access", imerg_v is not None),
         ("Subset IMERG over Indonesia → monthly land rainfall (mm/month)", have_regional),
         ("Derive rainfall regions R1–R3 (IMERG-derived; not the published A/B/C)", regions_v is not None),
-        ("Seasonal & lagged associations with autocorrelation-aware inference and FDR control", False),
+        ("Seasonal & lagged associations with autocorrelation-aware inference and FDR control",
+         (RESULTS / "associations_primary.csv").exists()),
         ("Equation discovery with leakage-free time-blocked validation vs baselines", False),
         ("Dynamic association network across seasons and time windows", False),
         ("Candidate hypotheses with pre-stated selection criteria and validation plan", False),
@@ -188,6 +190,64 @@ if st.session_state.get("ran"):
             f"silhouette favours k=2 ({rz['silhouette_by_k_subsample5000']['2']:.2f}) over k=3 "
             f"({rz['silhouette_by_k_subsample5000']['3']:.2f}). Small islands excluded by the cell "
             f"rule: {regions_v['mask']['area_share_of_those_parts']:.1%} of Indonesian land area.")
+
+    if (RESULTS / "associations_primary.csv").exists():
+        st.divider()
+        st.subheader("Stage F — ENSO–rainfall associations")
+        st.markdown("**COMPUTATIONAL RESULT — exploratory.** Discovery period 1998-01 to 2019-12 "
+                    "(rainfall months); the 2020-01 to 2025-09 test period was not used. "
+                    "Lag L pairs rainfall in month t+L with RONI centred on month t; lags 0–1 "
+                    "overlap the 3-month ENSO window. Associations are not evidence of causation.")
+        prim = pd.read_csv(RESULTS / "associations_primary.csv")
+        season = st.radio("Season (rainfall months)", ["DJF", "MAM", "JJA", "SON"], index=3,
+                          horizontal=True)
+        sub = prim[prim.season == season].pivot(index="region", columns="lag", values="r")
+        qs = prim[prim.season == season].pivot(index="region", columns="lag", values="q_bh_surrogate")
+        txt = sub.round(2).astype(str) + qs.map(lambda q: " *" if q < 0.05 else "")
+        hm = go.Figure(go.Heatmap(z=sub.values, x=[f"lag {c}" for c in sub.columns], y=sub.index,
+                                  text=txt.values, texttemplate="%{text}", zmin=-1, zmax=1,
+                                  colorscale="RdBu", colorbar=dict(title="r")))
+        hm.update_layout(height=260, margin=dict(l=10, r=10, t=10, b=10))
+        st.plotly_chart(hm, use_container_width=True)
+        st.caption("Pearson r between RONI and rainfall anomaly (mm/month), n = 66 monthly pairs "
+                   "per cell (22 season-years). * = Benjamini–Hochberg q < 0.05 within the declared "
+                   "48-test family, using phase-randomised surrogate p-values (floor 1/2001). BH "
+                   "does not remove temporal dependence or the data-informed choice of regions.")
+        show = prim[prim.season == season][["region", "lag", "n", "n_eff", "r", "r_ci_lo", "r_ci_hi",
+                                            "slope_mm_per_degC", "slope_ci_lo", "slope_ci_hi",
+                                            "p_surrogate", "q_bh_surrogate", "p_ess", "q_bh_ess"]]
+        st.dataframe(show.round(4), use_container_width=True, hide_index=True)
+
+        roll = pd.read_csv(RESULTS / "rolling.csv")
+        c1, c2 = st.columns(2)
+        reg = c1.selectbox("Region", ["R1", "R2", "R3"])
+        lag = c2.selectbox("Lag (months)", [0, 1, 2, 3])
+        rr = roll[(roll.region == reg) & (roll.season == season) & (roll.lag == lag)]
+        fr = go.Figure()
+        fr.add_scatter(x=rr.window, y=rr.r_ci_hi, mode="lines", line=dict(width=0), showlegend=False)
+        fr.add_scatter(x=rr.window, y=rr.r_ci_lo, mode="lines", line=dict(width=0), fill="tonexty",
+                       fillcolor="rgba(47,111,143,0.2)", name="95% block-bootstrap CI")
+        fr.add_scatter(x=rr.window, y=rr.r, mode="lines+markers", name="r", line=dict(color="#2f6f8f"))
+        fr.add_hline(y=0, line_color="#999")
+        fr.update_layout(height=300, yaxis=dict(range=[-1, 1], title="r"),
+                         margin=dict(l=10, r=10, t=30, b=10), legend=dict(orientation="h"))
+        st.plotly_chart(fr, use_container_width=True)
+        st.caption(f"EXPLORATORY: 11-year windows stepped by 1 year (n ≈ {int(rr.n.min())} monthly pairs "
+                   "each). Overlapping windows are not independent tests and do not by themselves "
+                   "show a regime shift.")
+        with st.expander("Sensitivity analyses (lag 0)"):
+            rows = []
+            for f, lab in [("primary", "RONI, R1–R3 (primary)"), ("oni", "ONI, R1–R3"),
+                           ("k3train", "RONI, k=3 fitted on 1998–2013")]:
+                d = pd.read_csv(RESULTS / f"associations_{f}.csv")
+                d = d[d.lag == 0].pivot(index="region", columns="season", values="r")
+                d.insert(0, "analysis", lab)
+                rows.append(d.reset_index())
+            st.dataframe(pd.concat(rows)[["analysis", "region", "DJF", "MAM", "JJA", "SON"]].round(2),
+                         use_container_width=True, hide_index=True)
+            st.caption("Each sensitivity family has its own BH correction; region labels in "
+                       "different regionalizations are not interchangeable (k=2 is in the CSV "
+                       "files and the findings report).")
 
     # ------------------------------------------------------------ methods etc.
     st.divider()

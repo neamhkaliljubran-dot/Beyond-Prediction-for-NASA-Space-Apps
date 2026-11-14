@@ -15,7 +15,8 @@ investigational framework**, not an established theory.
 | IMERG Indonesia box subset pipeline (resumable), tested on 12 months | done (`scripts/fetch_imerg_subset.py`) |
 | Full 1998-01..2025-09 IMERG subset (333 months) | done |
 | Indonesia mask (Natural Earth 1:10m) + IMERG-derived regions R1–R3 + regional series | done (`data/processed/imerg_regional_monthly.csv`) |
-| Associations, equation discovery, network, hypotheses | pending |
+| Stage F exploratory associations (discovery period 1998–2019; test 2020–2025 held out) | done (`docs/STAGE_F_FINDINGS.md`) |
+| Network, equation discovery, network, hypotheses | pending |
 | Streamlit app shell with workflow, outputs, evidence, provenance | done (`app.py`) |
 
 ## Run
@@ -31,6 +32,9 @@ python scripts/build_enso.py --offline  # rebuild from data/raw/enso
 python scripts/verify_imerg.py --granule <one IMERG V07B HDF5 file>
 python scripts/fetch_imerg_subset.py --start 1998-01 --end 2025-09   # resumable
 python scripts/build_regions.py
+python scripts/build_regions.py --k 2 --tag _k2
+python scripts/build_regions.py --clim-years 1998 2013 --tag _k3train
+python scripts/run_associations.py
 ```
 IMERG downloads need a NASA Earthdata Login account that has authorised the
 "NASA GESDISC DATA ARCHIVE" application.
