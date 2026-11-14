@@ -12,7 +12,8 @@ investigational framework**, not an established theory.
 |---|---|
 | NOAA CPC ONI + RONI (ERSSTv6) download, parsing, centre-month alignment | done (`data/processed/enso_monthly.csv`) |
 | GPM IMERG V07B monthly: collection, coverage, units, access verified | done (`data/provenance/imerg_verification.json`) |
-| IMERG Indonesia subset → regional monthly rainfall | pending |
+| IMERG Indonesia box subset pipeline (resumable), tested on 12 months | done (`scripts/fetch_imerg_subset.py`) |
+| Full 1998–2025 IMERG subset → regional monthly rainfall | pending |
 | Clusters, associations, equation discovery, network, hypotheses | pending |
 | Streamlit app shell with workflow, outputs, evidence, provenance | done (`app.py`) |
 
@@ -30,6 +31,8 @@ python scripts/verify_imerg.py --granule <one IMERG V07B HDF5 file>
 ```
 IMERG downloads need a NASA Earthdata Login account that has authorised the
 "NASA GESDISC DATA ARCHIVE" application.
+
+See `IMPLEMENTATION_STATUS.md` for the detailed stage log.
 
 ## Data sources
 - NOAA CPC ONI: https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt
