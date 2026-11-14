@@ -134,6 +134,17 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
 - App: TEST HYPOTHESIS (Output 1) and TEST EQUATION (Output 2) panels; integrated answer section.
 - Frozen Stage H selection unchanged (SHA-256 check in tests).
 
+## Presentation UI (Cosmic Blue)
+- Theme in `.streamlit/config.toml` (navy #071426, celestial #57B9F5, violet #8275DA, soft white #E9F2FF);
+  static stars only in the landing header; no animations.
+- Journey: question → Run Analysis → four answers → hypothesis + test (coefficient and contrast charts)
+  → equation + TEST EQUATION + 4 graphs (actual vs calculated, held-out time series, monthly coefficients
+  with CIs, reference-model comparison) + interpretation → network (how-to-read guide) → integrated
+  interpretation → supporting evidence (collapsed) → closing quote.
+- Optional music: original synthesised rendering of Bach BWV 846 bars 1–8 (`scripts/make_music.py`,
+  `assets/audio/`), native player, off by default.
+- No scientific result changed; the flow check reproduces identical values; 36 tests pass.
+
 ## Open issues
 - Main regions use the 1998–2024 climatology (overlaps test). Training-only regions (1998–2013) give
   nearly identical associations. Regions use the full period's climatology (annual cycle only, not ENSO); a held-out period

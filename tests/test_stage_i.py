@@ -72,3 +72,18 @@ def test_app_verification_panels_respond():
     b = df_with("Δβ = β_R3 − β_Rk")
     assert not np.allclose(a["Δβ = β_R3 − β_Rk"], b["Δβ = β_R3 − β_Rk"])
     assert not at.exception
+
+
+def test_presentation_graphics_present():
+    from streamlit.testing.v1 import AppTest
+
+    at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=120).run()
+    at.button[0].click().run()
+    assert not at.exception
+    keys = {el.proto.id for el in at.get("plotly_chart")}
+    assert len(at.get("plotly_chart")) >= 10
+    heads = " ".join(h.value for h in at.subheader)
+    for s in ["Four scientific answers", "Candidate hypothesis and its test", "Mathematical equation",
+              "Dynamic relationship network", "Integrated scientific interpretation"]:
+        assert s in heads, s
+    assert keys

@@ -67,7 +67,7 @@ def patterns(edges: pd.DataFrame) -> pd.DataFrame:
 
 # ---------------------------------------------------------------- figure
 NODE_POS = {"ENSO": (146.0, 7.0)}          # schematic position toward the Pacific
-NEG, POS, INC = "#b5542f", "#2f6f8f", "#9aa0a6"
+NEG, POS, INC = "#F2A65A", "#57B9F5", "#7A8799"
 
 
 def figure(edges: pd.DataFrame, node_pos: dict, equation_note: dict | None = None):
@@ -101,18 +101,18 @@ def figure(edges: pd.DataFrame, node_pos: dict, equation_note: dict | None = Non
         fig.add_scatter(x=[xs[mid]], y=[ys[mid]], mode="markers+text", text=[f"{e['r']:+.2f}"],
                         textposition="top center", marker=dict(size=14, color=color, opacity=0.25),
                         hovertext=hover, hoverinfo="text", showlegend=False,
-                        textfont=dict(size=12, color=color))
+                        textfont=dict(size=13, color=color))
     labels = {"ENSO": "ENSO<br>(RONI)"}
     for n, (x, y) in pos.items():
         fig.add_scatter(x=[x], y=[y], mode="markers+text", text=[labels.get(n, n)],
                         textposition="middle center",
-                        marker=dict(size=46, color="#26415e" if n != "ENSO" else "#e0533d",
-                                    line=dict(color="white", width=2)),
-                        textfont=dict(color="white", size=12), hoverinfo="text",
+                        marker=dict(size=48, color="#12304F" if n != "ENSO" else "#8275DA",
+                                    line=dict(color="#57B9F5" if n != "ENSO" else "#E9F2FF", width=2)),
+                        textfont=dict(color="#E9F2FF", size=13), hoverinfo="text",
                         hovertext=n, showlegend=False)
-    for name, col, dash in [("negative r — ENSO edge: less rain when RONI is high (El Niño)", NEG, "solid"),
-                            ("positive r — region–region: rainfall anomalies rise and fall together", POS, "solid"),
-                            ("dashed grey: inconclusive (CI includes 0 or q ≥ 0.05) — not proof of no link", INC, "dash")]:
+    for name, col, dash in [("negative r (supported): less rain when RONI is high — El Niño-like", NEG, "solid"),
+                            ("positive r (supported): rainfall anomalies vary together (region–region)", POS, "solid"),
+                            ("dashed grey: inconclusive — not proof of no relationship", INC, "dash")]:
         fig.add_scatter(x=[None], y=[None], mode="lines", name=name, line=dict(color=col, width=4, dash=dash))
     fig.update_layout(height=430, margin=dict(l=10, r=10, t=10, b=10), plot_bgcolor="rgba(0,0,0,0)",
                       xaxis=dict(visible=False, range=[100, 152]), yaxis=dict(visible=False, range=[-9, 9.5],

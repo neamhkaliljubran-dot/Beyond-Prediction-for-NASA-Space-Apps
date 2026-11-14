@@ -23,7 +23,7 @@ def walker_schematic(state: str = "neutral") -> str:
                "west; air rises over the Maritime Continent and sinks over the eastern Pacific.")
     return f"""
 <svg viewBox="0 0 760 330" role="img" aria-label="Schematic of the Pacific Walker circulation"
-     style="width:100%;max-width:760px;color:var(--bp-ink,#1f2937);font-family:sans-serif">
+     style="width:100%;max-width:760px;color:#E9F2FF;font-family:sans-serif">
   <defs>{_ARROW}
     <linearGradient id="sea" x1="0" x2="1"><stop offset="0" stop-color="#e0533d"/>
       <stop offset="{warm_w/760:.2f}" stop-color="#f4a261"/><stop offset="1" stop-color="#4a90c2"/></linearGradient>
@@ -50,12 +50,12 @@ PYRAMID_CSS = """
 <style>
 .bp-pyr{display:flex;flex-direction:column;align-items:center;gap:6px;margin:8px 0 4px}
 .bp-layer{clip-path:polygon(var(--i) 0,calc(100% - var(--i)) 0,100% 100%,0 100%);
-  color:#fff;text-align:center;padding:14px 12% 12px;width:100%;max-width:720px;box-sizing:border-box}
+  color:#E9F2FF;text-align:center;padding:14px 12% 12px;width:100%;max-width:720px;box-sizing:border-box}
 .bp-layer b{display:block;font-size:1.02rem;letter-spacing:.02em}
 .bp-layer span{font-size:.82rem;opacity:.92}
-.bp-l3{--i:38%;background:#b5542f;max-width:430px;padding-top:34px}
-.bp-l2{--i:12%;background:#2f6f8f;max-width:580px}
-.bp-l1{--i:6%;background:#26415e}
+.bp-l3{--i:38%;background:#8275DA;max-width:430px;padding-top:34px}
+.bp-l2{--i:12%;background:#2B6A99;max-width:580px}
+.bp-l1{--i:6%;background:#163A60}
 </style>"""
 
 PYRAMID_HTML = PYRAMID_CSS + """

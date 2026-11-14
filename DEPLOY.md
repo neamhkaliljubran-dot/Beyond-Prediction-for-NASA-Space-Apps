@@ -19,6 +19,9 @@ data pipeline uses `requirements-pipeline.txt`.
 If the repository is private, Streamlit asks for permission to read private repositories during
 sign-in. The deployed app itself is public unless you restrict viewers in the app settings.
 
+The Cosmic Blue theme comes from `.streamlit/config.toml`, and the optional music file from
+`assets/audio/`. Both are in the repository, so nothing else needs configuring.
+
 ## Local fallback (for example, if the venue Wi-Fi fails)
 ```bash
 python3 -m venv .venv && . .venv/bin/activate
