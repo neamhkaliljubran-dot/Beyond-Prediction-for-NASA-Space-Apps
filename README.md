@@ -16,7 +16,7 @@ investigational framework**, not an established theory.
 | Full 1998-01..2025-09 IMERG subset (333 months) | done |
 | Indonesia mask (Natural Earth 1:10m) + IMERG-derived regions R1–R3 + regional series | done (`data/processed/imerg_regional_monthly.csv`) |
 | Stage F exploratory associations (discovery period 1998–2019; test 2020–2025 held out) | done (`docs/STAGE_F_FINDINGS.md`) |
-| Network, equation discovery, network, hypotheses | pending |
+| Dynamic network, equation discovery, hypotheses | pending |
 | Streamlit app shell with workflow, outputs, evidence, provenance | done (`app.py`) |
 
 ## Run
