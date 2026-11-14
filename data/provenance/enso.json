@@ -1,0 +1,32 @@
+{
+  "dataset": "NOAA CPC ENSO indices (ONI and RONI), ERSSTv6-based",
+  "built_utc": "2026-11-14T20:23:55+00:00",
+  "sources": {
+    "oni": {
+      "url": "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt",
+      "local_file": "data/raw/enso/oni.ascii.txt",
+      "sha256": "118c563331335c8649cdc2677e6be7ae89d1259d901345fcddbc2857af280f7f",
+      "bytes": 23050,
+      "accessed_utc": "2026-11-14T20:23:54+00:00"
+    },
+    "roni": {
+      "url": "https://www.cpc.ncep.noaa.gov/data/indices/RONI.ascii.txt",
+      "local_file": "data/raw/enso/RONI.ascii.txt",
+      "sha256": "1297887f581b6190e459cbbf8bdec9a703ff65c1a229e2de4dd94285254f35c8",
+      "bytes": 14752,
+      "accessed_utc": "2026-11-14T20:23:55+00:00"
+    }
+  },
+  "definitions": {
+    "oni": "3-month running mean of ERSST.v6 SST anomalies in the Nino 3.4 region (5N-5S, 120-170W), based on centered 30-year base periods updated every 5 years. Source: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/oni/v6/",
+    "roni": "3-month running mean of ERSST.v6 Nino 3.4 SST anomalies (1991-2020 base) with the tropical-mean (20N-20S) SST anomaly subtracted, then rescaled so its variance equals the original Nino 3.4 index. Per NWS Public Information Statement 26-05, RONI is used for official ENSO monitoring. Source: https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/enso/roni/",
+    "units": "degC",
+    "temporal_alignment": "Each 3-month season is assigned to its centre month: DJF of year Y -> Jan Y (window Dec Y-1..Feb Y); NDJ of year Y -> Dec Y (window Nov Y..Jan Y+1).",
+    "caveat": "CPC notes the most recent values may change for up to two months after first posting and should be treated as estimates.",
+    "version_check": "oni.ascii.txt values were matched against CPC's ERSSTv6 ONI table (DJF 1950: file -1.32, v6 table -1.3, v5 table -1.5)."
+  },
+  "processed_file": "data/processed/enso_monthly.csv",
+  "rows": 921,
+  "first_month": "1950-01",
+  "last_month": "2026-09"
+}

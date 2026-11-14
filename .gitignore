@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+# Raw IMERG granules are large; keep only processed subsets in git.
+*.HDF5
+*.nc4
+data/raw/imerg/

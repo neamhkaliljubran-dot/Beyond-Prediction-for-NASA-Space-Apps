@@ -1,0 +1,201 @@
+{
+  "verified_utc": "2026-11-14T20:23:56+00:00",
+  "collection": {
+    "concept_id": "C2723754851-GES_DISC",
+    "short_name": "GPM_3IMERGM",
+    "version": "07",
+    "title": "GPM IMERG Final Precipitation L3 1 month 0.1 degree x 0.1 degree V07 (GPM_3IMERGM)",
+    "doi": "10.5067/GPM/IMERG/3B-MONTH/07",
+    "temporal_extent_metadata": [
+      {
+        "RangeDateTimes": [
+          {
+            "BeginningDateTime": "1998-01-01T00:00:00.000Z",
+            "EndingDateTime": "2025-09-30T23:59:59.999Z"
+          }
+        ],
+        "EndsAtPresentFlag": false
+      }
+    ],
+    "abstract_first_sentence": "Version 07B is the current version of the IMERG data sets. Older versions will no longer be available and have been superseded by Version 07."
+  },
+  "granules": {
+    "count": 333,
+    "first": {
+      "granule_ur": "GPM_3IMERGM.07:3B-MO.MS.MRG.3IMERG.19980101-S000000-E235959.01.V07B.HDF5",
+      "time": {
+        "BeginningDateTime": "1998-01-01T00:00:00.000Z",
+        "EndingDateTime": "1998-01-31T23:59:59.999Z"
+      },
+      "download_url": "https://data.gesdisc.earthdata.nasa.gov/data/GPM_L3/GPM_3IMERGM.07/1998/3B-MO.MS.MRG.3IMERG.19980101-S000000-E235959.01.V07B.HDF5",
+      "opendap_url": "https://opendap.earthdata.nasa.gov/collections/C2723754851-GES_DISC/granules/GPM_3IMERGM.07%3A3B-MO.MS.MRG.3IMERG.19980101-S000000-E235959.01.V07B.HDF5",
+      "size": "16.5805587768555 MB"
+    },
+    "last": {
+      "granule_ur": "GPM_3IMERGM.07:3B-MO.MS.MRG.3IMERG.20250901-S000000-E235959.09.V07B.HDF5",
+      "time": {
+        "BeginningDateTime": "2025-09-01T00:00:00.000Z",
+        "EndingDateTime": "2025-09-30T23:59:59.999Z"
+      },
+      "download_url": "https://data.gesdisc.earthdata.nasa.gov/data/GPM_L3/GPM_3IMERGM.07/2025/3B-MO.MS.MRG.3IMERG.20250901-S000000-E235959.09.V07B.HDF5",
+      "opendap_url": "https://opendap.earthdata.nasa.gov/collections/C2723754851-GES_DISC/granules/GPM_3IMERGM.07%3A3B-MO.MS.MRG.3IMERG.20250901-S000000-E235959.09.V07B.HDF5",
+      "size": "18.2847089767456 MB"
+    }
+  },
+  "access": {
+    "requires": "NASA Earthdata Login; account must authorise 'NASA GESDISC DATA ARCHIVE'",
+    "download_host": "data.gesdisc.earthdata.nasa.gov (redirects to a signed CloudFront URL)",
+    "subsetting_service": "opendap.earthdata.nasa.gov (OPeNDAP)"
+  },
+  "sample_granule": {
+    "file": "test.HDF5",
+    "sha256": "e5d1806b15f51b47f37db0cb2101cb8aff477141d2a4717ae6d4e4d326847f24",
+    "bytes": 19172907,
+    "variables": {
+      "Grid/gaugeRelativeWeighting": {
+        "shape": [
+          1,
+          3600,
+          1800
+        ],
+        "dtype": "int16",
+        "units": "percent",
+        "LongName": "Relative weight of gauge observation in the merged microwave-infrared-gauge precipitation estimate",
+        "DimensionNames": "time,lon,lat",
+        "_FillValue": -9999
+      },
+      "Grid/lat": {
+        "shape": [
+          1800
+        ],
+        "dtype": "float32",
+        "units": "degrees_north",
+        "LongName": "Latitude at the center of 0.10 degree grid intervals of latitude from -90 to 90.",
+        "DimensionNames": "lat"
+      },
+      "Grid/lat_bnds": {
+        "shape": [
+          1800,
+          2
+        ],
+        "dtype": "float32",
+        "units": "degrees_north",
+        "DimensionNames": "lat,latv"
+      },
+      "Grid/latv": {
+        "shape": [
+          2
+        ],
+        "dtype": "int32",
+        "LongName": "Number of latitude bounds.",
+        "DimensionNames": "latv"
+      },
+      "Grid/lon": {
+        "shape": [
+          3600
+        ],
+        "dtype": "float32",
+        "units": "degrees_east",
+        "LongName": "Longitude at the center of 0.10 degree grid intervals of longitude from -180 to 180.",
+        "DimensionNames": "lon"
+      },
+      "Grid/lon_bnds": {
+        "shape": [
+          3600,
+          2
+        ],
+        "dtype": "float32",
+        "units": "degrees_east",
+        "DimensionNames": "lon,lonv"
+      },
+      "Grid/lonv": {
+        "shape": [
+          2
+        ],
+        "dtype": "int32",
+        "LongName": "Number of longitude bounds.",
+        "DimensionNames": "lonv"
+      },
+      "Grid/nv": {
+        "shape": [
+          2
+        ],
+        "dtype": "int32",
+        "LongName": "Number of time bounds.",
+        "DimensionNames": "nv"
+      },
+      "Grid/precipitation": {
+        "shape": [
+          1,
+          3600,
+          1800
+        ],
+        "dtype": "float32",
+        "units": "mm/hr",
+        "LongName": "Merged microwave-infrared-gauge precipitation estimate",
+        "DimensionNames": "time,lon,lat",
+        "_FillValue": -9999.900390625
+      },
+      "Grid/precipitationQualityIndex": {
+        "shape": [
+          1,
+          3600,
+          1800
+        ],
+        "dtype": "float32",
+        "DimensionNames": "time,lon,lat",
+        "_FillValue": -9999.900390625
+      },
+      "Grid/probabilityLiquidPrecipitation": {
+        "shape": [
+          1,
+          3600,
+          1800
+        ],
+        "dtype": "int16",
+        "units": "percent",
+        "LongName": "Probability of liquid precipitation; estimated with a diagnostic parameterization using ancillary data",
+        "DimensionNames": "time,lon,lat",
+        "_FillValue": -9999
+      },
+      "Grid/randomError": {
+        "shape": [
+          1,
+          3600,
+          1800
+        ],
+        "dtype": "float32",
+        "units": "mm/hr",
+        "LongName": "Root-mean-square error estimate for merged microwave-infrared-gauge precipitation",
+        "DimensionNames": "time,lon,lat",
+        "_FillValue": -9999.900390625
+      },
+      "Grid/time": {
+        "shape": [
+          1
+        ],
+        "dtype": "int32",
+        "units": "seconds since 1980-01-06 00:00:00 UTC",
+        "LongName": "Representative time of data in seconds since 1980-01-06 00:00:00 UTC. The calculation of time does not add leap seconds. The difference due to leap seconds grows with time and in 2019 is less than 30 seconds.",
+        "DimensionNames": "time"
+      },
+      "Grid/time_bnds": {
+        "shape": [
+          1,
+          2
+        ],
+        "dtype": "int32",
+        "units": "seconds since 1980-01-06 00:00:00 UTC",
+        "DimensionNames": "time,nv"
+      }
+    },
+    "grid": {
+      "lat_first": -89.94999694824219,
+      "lat_last": 89.94999694824219,
+      "lon_first": -179.9499969482422,
+      "lon_last": 179.9499969482422,
+      "resolution_deg": 0.1
+    },
+    "file_header_excerpt": "DOI=10.5067/GPM/IMERG/3B-MONTH/07; DOIauthority=http://dx.doi.org/; DOIshortName=3IMERGM; AlgorithmID=3IMERGM; AlgorithmVersion=3IMERGM_7.0; FileName=3B-MO.MS.MRG.3IMERG.20250901-S000000-E235959.09.V07B.HDF5; SatelliteName=MULTI; InstrumentName=MERGED; GenerationDateTime=2026-02-01T21:12:03.000Z; StartGranuleDateTime=2025-09-01T00:00:00.000Z; StopGranuleDateTime=2025-09-30T23:59:59.999Z; GranuleNumber=; NumberOfSwaths=0; NumberOfGrids=1; GranuleStart=; TimeInterval=MONTH; ProcessingSystem=PPS; ProductVersion=V07B; EmptyGranule=NOT_EMPTY; MissingData=;"
+  }
+}
