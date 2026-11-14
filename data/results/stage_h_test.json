@@ -1,0 +1,273 @@
+{
+  "tested_utc": "2026-11-14T21:14:57+00:00",
+  "selection_frozen_utc": "2026-11-14T21:14:28+00:00",
+  "selection_sha256": "787d14a59a1473aba190000551266429d6109fba4a517b3b97395e136d3b9cfd",
+  "test_period": [
+    "2020-01",
+    "2025-09"
+  ],
+  "results": [
+    {
+      "target": "R1-DJF",
+      "selected": "climatology",
+      "priority": false,
+      "reliable_on_validation": false,
+      "n_test": 17,
+      "n_test_season_years": 6,
+      "rmse_selected": 36.266586136690144,
+      "rmse_climatology": 36.266586136690144,
+      "rmse_persistence": 35.79819522560406,
+      "rmse_linear@lag0": 36.09953734816469,
+      "msess_selected": 0.0,
+      "msess_ci95": [
+        0.0,
+        0.0
+      ],
+      "msess_linear_lag0": 0.0091910533441949,
+      "msess_persistence": 0.02566363559439888,
+      "bias_selected": -0.8462566844919496
+    },
+    {
+      "target": "R1-MAM",
+      "selected": "linear+tendency@lag0",
+      "priority": false,
+      "reliable_on_validation": true,
+      "n_test": 18,
+      "n_test_season_years": 6,
+      "rmse_selected": 28.066722105402615,
+      "rmse_climatology": 27.491316022909622,
+      "rmse_persistence": 27.87431032411107,
+      "rmse_linear@lag0": 28.35732510440957,
+      "msess_selected": -0.042299018425732804,
+      "msess_ci95": [
+        -0.4568056446319675,
+        0.31562271259745234
+      ],
+      "msess_linear_lag0": -0.0639946983761448,
+      "msess_persistence": -0.028057015291012233,
+      "bias_selected": 0.672363212040848
+    },
+    {
+      "target": "R1-JJA",
+      "selected": "persistence",
+      "priority": true,
+      "reliable_on_validation": false,
+      "n_test": 18,
+      "n_test_season_years": 6,
+      "rmse_selected": 33.873205319028365,
+      "rmse_climatology": 46.18518655477536,
+      "rmse_persistence": 33.873205319028365,
+      "rmse_linear@lag0": 29.219068550877875,
+      "msess_selected": 0.46209301391838853,
+      "msess_ci95": [
+        0.07704876950507311,
+        0.5649731860195246
+      ],
+      "msess_linear_lag0": 0.5997536959489141,
+      "msess_persistence": 0.46209301391838853,
+      "bias_selected": -15.01900028965958
+    },
+    {
+      "target": "R1-SON",
+      "selected": "linear+persistence@lag0",
+      "priority": true,
+      "reliable_on_validation": true,
+      "n_test": 16,
+      "n_test_season_years": 6,
+      "rmse_selected": 36.97918387065264,
+      "rmse_climatology": 66.20705673630083,
+      "rmse_persistence": 40.109193207142994,
+      "rmse_linear@lag0": 41.253211353407416,
+      "msess_selected": 0.6880348501161869,
+      "msess_ci95": [
+        0.5969388901413683,
+        0.7757094544821547
+      ],
+      "msess_linear_lag0": 0.6117540263398378,
+      "msess_persistence": 0.6329888239091748,
+      "bias_selected": -2.537506418036311
+    },
+    {
+      "target": "R2-DJF",
+      "selected": "climatology",
+      "priority": false,
+      "reliable_on_validation": false,
+      "n_test": 17,
+      "n_test_season_years": 6,
+      "rmse_selected": 53.91014917108164,
+      "rmse_climatology": 53.91014917108164,
+      "rmse_persistence": 53.78609847421513,
+      "rmse_linear@lag0": 52.91187357636379,
+      "msess_selected": 0.0,
+      "msess_ci95": [
+        0.0,
+        0.0
+      ],
+      "msess_linear_lag0": 0.03669189855870758,
+      "msess_persistence": 0.004596832859228406,
+      "bias_selected": -10.429368983957216
+    },
+    {
+      "target": "R2-MAM",
+      "selected": "climatology",
+      "priority": false,
+      "reliable_on_validation": false,
+      "n_test": 18,
+      "n_test_season_years": 6,
+      "rmse_selected": 48.744918997904385,
+      "rmse_climatology": 48.744918997904385,
+      "rmse_persistence": 49.98656560172446,
+      "rmse_linear@lag0": 47.154983845046544,
+      "msess_selected": 0.0,
+      "msess_ci95": [
+        0.0,
+        0.0
+      ],
+      "msess_linear_lag0": 0.06417100968304579,
+      "msess_persistence": -0.05159349712507422,
+      "bias_selected": -22.354444444444457
+    },
+    {
+      "target": "R2-JJA",
+      "selected": "persistence",
+      "priority": true,
+      "reliable_on_validation": false,
+      "n_test": 18,
+      "n_test_season_years": 6,
+      "rmse_selected": 69.10675337481739,
+      "rmse_climatology": 69.78003482105166,
+      "rmse_persistence": 69.10675337481739,
+      "rmse_linear@lag0": 58.5459900685732,
+      "msess_selected": 0.019204155675095702,
+      "msess_ci95": [
+        -0.16916267106264948,
+        0.16295916101375518
+      ],
+      "msess_linear_lag0": 0.2960659940345943,
+      "msess_persistence": 0.019204155675095702,
+      "bias_selected": -30.296240944361827
+    },
+    {
+      "target": "R2-SON",
+      "selected": "persistence",
+      "priority": true,
+      "reliable_on_validation": false,
+      "n_test": 16,
+      "n_test_season_years": 6,
+      "rmse_selected": 47.87450770867788,
+      "rmse_climatology": 53.40549046614369,
+      "rmse_persistence": 47.87450770867788,
+      "rmse_linear@lag0": 45.93630501583621,
+      "msess_selected": 0.1964057389333559,
+      "msess_ci95": [
+        0.08512148627213245,
+        0.3806987573748095
+      ],
+      "msess_linear_lag0": 0.2601557515834154,
+      "msess_persistence": 0.1964057389333559,
+      "bias_selected": -6.078738537449834
+    },
+    {
+      "target": "R3-DJF",
+      "selected": "climatology",
+      "priority": true,
+      "reliable_on_validation": false,
+      "n_test": 17,
+      "n_test_season_years": 6,
+      "rmse_selected": 40.74842337686715,
+      "rmse_climatology": 40.74842337686715,
+      "rmse_persistence": 38.48213333366482,
+      "rmse_linear@lag0": 33.45741369869613,
+      "msess_selected": 0.0,
+      "msess_ci95": [
+        0.0,
+        0.0
+      ],
+      "msess_linear_lag0": 0.3258397947678817,
+      "msess_persistence": 0.10814005311727726,
+      "bias_selected": -12.088590909090902
+    },
+    {
+      "target": "R3-MAM",
+      "selected": "persistence",
+      "priority": false,
+      "reliable_on_validation": false,
+      "n_test": 18,
+      "n_test_season_years": 6,
+      "rmse_selected": 36.87417213190113,
+      "rmse_climatology": 38.39117771583546,
+      "rmse_persistence": 36.87417213190113,
+      "rmse_linear@lag0": 39.38035516883736,
+      "msess_selected": 0.07746747379791752,
+      "msess_ci95": [
+        -0.4353409863605191,
+        0.26997298270928494
+      ],
+      "msess_linear_lag0": -0.052195372043900345,
+      "msess_persistence": 0.07746747379791752,
+      "bias_selected": -15.634179685123879
+    },
+    {
+      "target": "R3-JJA",
+      "selected": "persistence",
+      "priority": true,
+      "reliable_on_validation": false,
+      "n_test": 18,
+      "n_test_season_years": 6,
+      "rmse_selected": 82.00786064269894,
+      "rmse_climatology": 93.49432030540468,
+      "rmse_persistence": 82.00786064269894,
+      "rmse_linear@lag0": 70.25826258187925,
+      "msess_selected": 0.23062068204757813,
+      "msess_ci95": [
+        0.0965745489200791,
+        0.3438214278216991
+      ],
+      "msess_linear_lag0": 0.43529146142264863,
+      "msess_persistence": 0.23062068204757813,
+      "bias_selected": -36.74981194098941
+    },
+    {
+      "target": "R3-SON",
+      "selected": "month-varying slope@lag0",
+      "priority": true,
+      "reliable_on_validation": true,
+      "n_test": 16,
+      "n_test_season_years": 6,
+      "rmse_selected": 44.06616337993258,
+      "rmse_climatology": 69.00110111525123,
+      "rmse_persistence": 50.10293515918514,
+      "rmse_linear@lag0": 41.28732886476804,
+      "msess_selected": 0.5921519049733537,
+      "msess_ci95": [
+        0.4645444986400131,
+        0.6365597457023933
+      ],
+      "msess_linear_lag0": 0.6419682587623746,
+      "msess_persistence": 0.47275278436187684,
+      "bias_selected": -12.103137927667852
+    }
+  ],
+  "worked_example": {
+    "target": "R3-SON",
+    "formula": "y = a + sum_m b_m * 1[m] * x_0  (m in [9, 10, 11])",
+    "month": "2020-11",
+    "inputs": {
+      "x (RONI, degC)": -1.46,
+      "y(t-1) (mm/month)": 67.37481818181817,
+      "x_tend (degC)": -0.61
+    },
+    "coefficients": {
+      "a": -5.724663787125246,
+      "b_m9": -59.64496648186664,
+      "b_m10": -65.47067221202646,
+      "b_m11": -21.675626393525803
+    },
+    "climatology_mm_month": 222.4836818181818,
+    "predicted_anomaly_mm_month": 25.92175074742243,
+    "predicted_total_mm_month": 248.40543256560423,
+    "observed_total_mm_month": 252.59,
+    "observed_anomaly_mm_month": 30.10631818181821,
+    "error_mm_month": 4.184567434395781
+  }
+}

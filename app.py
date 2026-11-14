@@ -98,7 +98,8 @@ if st.session_state.get("ran"):
         ("Derive rainfall regions R1–R3 (IMERG-derived; not the published A/B/C)", regions_v is not None),
         ("Seasonal & lagged associations with autocorrelation-aware inference and FDR control",
          (RESULTS / "associations_primary.csv").exists()),
-        ("Equation discovery with leakage-free time-blocked validation vs baselines", False),
+        ("Equation discovery with leakage-free time-blocked validation vs baselines",
+         (RESULTS / "stage_h_test.json").exists()),
         ("Dynamic association network across seasons and time windows", False),
         ("Candidate hypotheses with pre-stated selection criteria and validation plan", False),
     ]
@@ -120,11 +121,67 @@ if st.session_state.get("ran"):
                     "consistent sign in ≥ 70 % of time windows. If no relationship qualifies, "
                     "the null result is reported.")
     with o2:
-        st.warning(pending)
-        st.markdown("*Planned method:* sparse regression over a small, dimensionally consistent "
-                    "library of ENSO terms (°C, °C², lagged °C), evaluated with rolling-origin "
-                    "blocked cross-validation against climatology, persistence and linear-ENSO "
-                    "baselines.")
+        sel = read_json(RESULTS / "stage_h_selection.json")
+        tst = read_json(RESULTS / "stage_h_test.json")
+        if not (sel and tst and sel.get("headline")):
+            st.warning("Not yet computed (Stage H).")
+        else:
+            h = sel["headline"]
+            fm = sel["final_models"][h]
+            cf = {k: v for k, v in fm["coefficients"].items()}
+            ex = tst["worked_example"]
+            st.markdown(f"**COMPUTATIONAL RESULT — selected by a pre-stated rule on 2014–2019 "
+                        f"validation, then tested once on {tst['test_period'][0]}…{tst['test_period'][1]}.** "
+                        f"Target: region {h.split('-')[0]} (training-derived regions), "
+                        f"{h.split('-')[1]} months.")
+            st.latex(r"\Delta P_{R3}(t) = a + b_{m}\,\mathrm{RONI}(t),\qquad "
+                     r"P_{R3}(t) = C_{R3}(m) + \Delta P_{R3}(t),\quad m\in\{\mathrm{Sep,Oct,Nov}\}")
+            ct = pd.DataFrame([{"coefficient": k, "value": v["value"], "95% CI": f"[{v['ci95'][0]:.1f}, {v['ci95'][1]:.1f}]",
+                                "fit 1998–2013 only": v["value_fit_1998_2013"], "units": v["units"]}
+                               for k, v in cf.items()])
+            st.dataframe(ct.round(2), use_container_width=True, hide_index=True)
+            tr = pd.DataFrame(tst["results"]).set_index("target").loc[h]
+            m = st.columns(4)
+            m[0].metric("Test RMSE (mm/month)", f"{tr.rmse_selected:.1f}", f"climatology {tr.rmse_climatology:.1f}",
+                        delta_color="off")
+            m[1].metric("Test skill vs climatology", f"{tr.msess_selected:.2f}",
+                        f"95% CI {tr.msess_ci95[0]:.2f}–{tr.msess_ci95[1]:.2f}", delta_color="off")
+            m[2].metric("Linear lag-0 baseline skill", f"{tr.msess_linear_lag0:.2f}")
+            m[3].metric("Persistence baseline skill", f"{tr.msess_persistence:.2f}")
+            better = tr.msess_linear_lag0 >= tr.msess_selected
+            st.info(("On the test period the simpler linear lag-0 model scored at least as well "
+                     if better else "On the test period the selected model outscored the linear lag-0 model ")
+                    + f"(skill {tr.msess_linear_lag0:.2f} vs {tr.msess_selected:.2f})"
+                    + (": separate monthly slopes show no demonstrated out-of-sample benefit. " if better else ". ")
+                    + "Lag 0 means RONI centred on the rainfall month (window includes the next "
+                    "month), so this is a concurrent association, not a forecast or a physical law.")
+            mon = int(ex["month"][5:7])
+            bm = {9: "b_m9", 10: "b_m10", 11: "b_m11"}[mon]
+            x = ex["inputs"]["x (RONI, degC)"]
+            st.markdown(f"**Worked example — {ex['month']}** (test month with largest |RONI|):  \n"
+                        f"ΔP = a + b × RONI = {cf['a']['value']:.4f} + ({cf[bm]['value']:.4f}) × ({x:.2f}) "
+                        f"= **{ex['predicted_anomaly_mm_month']:+.2f} mm/month**  \n"
+                        f"P̂ = C + ΔP = {ex['climatology_mm_month']:.2f} + {ex['predicted_anomaly_mm_month']:.2f} "
+                        f"= **{ex['predicted_total_mm_month']:.2f} mm/month**; observed "
+                        f"**{ex['observed_total_mm_month']:.2f}** (error {ex['error_mm_month']:+.2f}).")
+            pr = pd.read_csv(RESULTS / "stage_h_test_predictions.csv", parse_dates=["date"])
+            pr = pr[(pr.region + "-" + pr.season) == h]
+            fp = go.Figure()
+            fp.add_scatter(x=pr.date, y=pr.P, mode="markers+lines", name="observed (IMERG)",
+                           line=dict(color="#26415e"))
+            fp.add_scatter(x=pr.date, y=pr.pred_total, mode="markers", name="equation",
+                           marker=dict(color="#b5542f", size=9, symbol="diamond"))
+            fp.add_scatter(x=pr.date, y=pr.C, mode="markers", name="climatology",
+                           marker=dict(color="#999", size=7))
+            fp.update_layout(height=300, yaxis_title="mm/month", margin=dict(l=10, r=10, t=10, b=10),
+                             legend=dict(orientation="h"))
+            st.plotly_chart(fp, use_container_width=True)
+            st.caption("Held-out test months only. Full selection table, all 12 region-season targets "
+                       "and limitations: docs/STAGE_H_EQUATION.md.")
+            allt = pd.DataFrame(tst["results"])[["target", "selected", "reliable_on_validation", "n_test",
+                                                 "msess_selected", "msess_linear_lag0", "msess_persistence"]]
+            with st.expander("All 12 targets (validation choice and test skill)"):
+                st.dataframe(allt.round(2), use_container_width=True, hide_index=True)
     with o3:
         st.warning(pending)
         st.markdown("*Planned encoding:* edge colour = sign, width = |r|, hover = confidence "

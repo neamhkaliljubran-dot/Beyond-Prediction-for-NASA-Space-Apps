@@ -16,7 +16,7 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
 | E | Indonesian territory mask + IMERG-derived regions R1–R3 + regional series | DONE |
 | F | Anomalies + season/lag/window associations, autocorrelation-aware, FDR | DONE (exploratory; see docs/STAGE_F_FINDINGS.md) |
 | G | (NEXT, after review) Dynamic association network from computed metrics | pending |
-| H | Interpretable equation search, time-blocked validation vs baselines | pending |
+| H | Interpretable equation search, time-blocked validation vs baselines | DONE (docs/STAGE_H_EQUATION.md) |
 | I | Candidate hypotheses from computed evidence | pending |
 | J | Integrate outputs into Streamlit, end-to-end tests, docs | pending |
 
@@ -98,6 +98,19 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
   MAM none after correction; 0/48 changes between halves detectable. Full report: `docs/STAGE_F_FINDINGS.md`.
 - Region variants: `regions_k2.json` (ARI vs main 0.39), `regions_k3train.json` (ARI 0.87).
 - App: Stage F section (heatmap, table, rolling chart, sensitivity) — step 5 marked complete.
+
+## Stage H — equation discovery (`scripts/run_equation_search.py`)
+- Regions refitted on training years (k3train), climatology refitted inside every fit, 26 candidates per target
+  (baselines, linear, asymmetric, quadratic, persistence, month-varying slope, tendency; lags 0–3),
+  expanding-window validation 2014–2019, one-standard-error parsimony rule fixed in code.
+- Selection frozen and committed (`1395389`) before the single test run on 2020-01..2025-09.
+  One reporting bug (pandas column-name clash) crashed the first test run before any metric
+  was computed; it was fixed without touching the selection.
+- Reliable on validation: R1-SON (linear+persistence lag 0), R3-SON (month-varying slope lag 0, headline),
+  R1-MAM. R3-DJF → climatology (Stage F's DJF signal gave no validated skill).
+- Headline test result: skill vs climatology (MSESS) 0.59 [0.46, 0.64], RMSE 44.1 vs 69.0 mm/month; linear lag 0
+  scored 0.64 → no demonstrated benefit from the month-specific slopes. Worked example Nov 2020 reproduced
+  from raw files. App Output 2 tab is live.
 
 ## Open issues
 - Main regions use the 1998–2024 climatology (overlaps test). Training-only regions (1998–2013) give

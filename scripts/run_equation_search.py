@@ -221,7 +221,7 @@ def phase_test():
             if lab == "selected":
                 f = te[L].assign(pred_anom=p, pred_total=p + te[L]["C"], region=v["region"],
                                  season=v["season"], model=c.key)
-                preds.append(f.reset_index(names="month"))
+                preds.append(f.reset_index(names="date"))
         sy = S.season_year(te[0].index)
         rng = np.random.default_rng(SEED)
         bs = []
@@ -248,7 +248,7 @@ def phase_test():
         hp = pr[(pr.region + "-" + pr.season) == h]
         row = hp.loc[hp["x"].abs().idxmax()]
         coefs = {k: v["value"] for k, v in m["coefficients"].items()}
-        example = {"target": h, "formula": m["formula"], "month": str(row["month"])[:7],
+        example = {"target": h, "formula": m["formula"], "month": str(row["date"])[:7],
                    "inputs": {"x (RONI, degC)": float(row["x"]), "y(t-1) (mm/month)": float(row["y_prev"]),
                               "x_tend (degC)": float(row["x_tend"])},
                    "coefficients": coefs,

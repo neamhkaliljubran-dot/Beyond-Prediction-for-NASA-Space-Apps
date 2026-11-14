@@ -11,7 +11,7 @@ hypothesis, a fitted equation or a validated result.
 | Split for later stages | Training 1998-01..2013-12 · validation 2014-01..2019-12 · test 2020-01..2025-09 (69 months) |
 | Rainfall | Area-weighted IMERG V07B, regions R1–R3. Anomaly = mm/month minus the 1998–2019 calendar-month mean. Standardised and percent anomalies are also reported. |
 | ENSO | RONI (primary), ONI (sensitivity). Lag L means rainfall in month t+L is paired with ENSO centred on month t. Lags 0–1 overlap the 3-month ENSO window. |
-| Seasons | Assigned by rainfall month: 66 monthly pairs per cell (22 season-years) |
+| Seasons | Assigned by rainfall month: 66 monthly pairs per cell (22 season-years; 23 for DJF, of which 21 are complete) |
 | Inference | Persistence-preserving surrogates of ENSO with the seasonal subsetting kept (2000 surrogates; smallest possible p = 0.0005) · effective sample size from the ACF of both series · moving-block (2-year) bootstrap 95% CIs · BH within the declared 48-test family |
 | Persistence | Lag-1 autocorrelation (ACF): RONI 0.95, ONI 0.95, rainfall anomalies R1 0.49, R2 0.17, R3 0.42 → n_eff ≈ 35 (R1, R3) and 49 (R2) out of 66 |
 
