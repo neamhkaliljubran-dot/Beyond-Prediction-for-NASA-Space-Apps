@@ -161,6 +161,18 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
   so reruns do not restart it (browser test: same element, time advancing across 6 reruns, strict autoplay policy).
 - All scientific values unchanged; 36 tests pass; real-browser walkthrough passes with 0 exceptions.
 
+## Immersive presentation refinement (checkpoint before this change: commit 131d112)
+- Narrative sections: hypothesis as hero (centred statement, four plain-English points, neutral result line),
+  equation as centerpiece (large KaTeX with soft glow and reveal, short explanations), "What the real data show"
+  charts each with "how to read" and "what we see" lines, network with plain explanation, four answers.
+- H0/H1, p-values, methods, coefficient tables and diagnostics moved into collapsed technical details.
+- Question box: magnifying-glass icon + "Enter Question" label + exact question; float, black-on-click, scroll.
+- Starfield: 2 drifting layers + 120 individually twinkling stars (own size, brightness, rhythm); fixed behind all
+  sections. Fixed a bug where the post-click fade (transform) detached the starfield from the viewport — fade is
+  now opacity-only.
+- Music, licensed file, autoplay/continuity behaviour, attribution and closing quote unchanged.
+- No scientific value changed; 36 tests pass; browser walkthrough passes (music continuous across 6 reruns).
+
 ## Open issues
 - Main regions use the 1998–2024 climatology (overlaps test). Training-only regions (1998–2013) give
   nearly identical associations. Regions use the full period's climatology (annual cycle only, not ENSO); a held-out period

@@ -21,39 +21,45 @@ def _shadows(n: int, seed: int, w: int = 1700, h: int = 1100) -> str:
     return ", ".join(f"{x}px {y}px {c}" for x, y, c in zip(xs, ys, cols))
 
 
-def starfield_html() -> str:
-    """Fixed, full-viewport starfield.
+def starfield_html(n_twinkle: int = 120, seed: int = 21) -> str:
+    """Fixed, full-viewport night sky behind every section.
 
-    Drifting layers and twinkling layers are separate elements (animating one property per
-    layer keeps compositing cheap); stars tile a 1700 x 1100 px field that repeats seamlessly.
+    - Two drifting layers (tiny 1 px and 1.5 px stars) move slowly upward and repeat seamlessly.
+    - `n_twinkle` individual stars, each a tiny element with its own size, brightness, colour,
+      rhythm and phase, so twinkling is independent. Tiny elements keep compositing cheap;
+      no blur filters are used (only a small static box-shadow halo on the larger stars).
     """
     H = 1100
-    layers = [  # (class, star px, count, seed, kind, seconds)
-        ("d1", 1, 170, 11, "drift", 150),
-        ("d2", 2, 70, 12, "drift", 95),
-        ("t1", 2, 45, 13, "twinkle", 3.6),
-        ("t2", 3, 18, 14, "twinkle", 5.1),
-    ]
     css, divs = [], []
-    for name, px, n, seed, kind, sec in layers:
-        sh = _shadows(n, seed)
-        anim = (f"bp-drift {sec}s linear infinite" if kind == "drift"
-                else f"bp-twinkle {sec}s ease-in-out infinite alternate")
+    for name, px, n, s, sec, op in [("d1", 1, 190, 11, 170, .75), ("d2", 1.5, 80, 12, 110, .85)]:
+        sh = _shadows(n, s)
         css.append(f"""
-.bp-stars .{name}{{position:absolute;top:0;left:0;width:{px}px;height:{px}px;border-radius:50%;
-  box-shadow:{sh};animation:{anim};will-change:{'transform' if kind == 'drift' else 'opacity'};}}""")
-        if kind == "drift":
-            css.append(f"""
+.bp-stars .{name}{{position:absolute;top:0;left:0;width:{px}px;height:{px}px;border-radius:50%;opacity:{op};
+  box-shadow:{sh};animation:bp-drift {sec}s linear infinite;will-change:transform;}}
 .bp-stars .{name}::after{{content:"";position:absolute;top:{H}px;left:0;width:{px}px;height:{px}px;
   border-radius:50%;box-shadow:{sh};}}""")
         divs.append(f'<div class="{name}"></div>')
+    rng = np.random.default_rng(seed)
+    stars = []
+    for k in range(n_twinkle):
+        size = float(rng.choice([1.4, 1.8, 2.2, 2.6, 3.2], p=[.30, .28, .20, .14, .08]))
+        col = str(rng.choice(["#F3F8FF", "#E9F2FF", "#D6ECFF", "#9FD8FF", "#C9C1F5"], p=[.35, .25, .18, .14, .08]))
+        halo = f"box-shadow:0 0 {size * 2.2:.1f}px {size * .6:.1f}px {col}55;" if size >= 2.2 else ""
+        kf = ["bp-tw1", "bp-tw2", "bp-tw3"][k % 3]
+        stars.append(
+            f'<i style="left:{rng.uniform(0, 100):.2f}vw;top:{rng.uniform(0, 100):.2f}vh;width:{size}px;height:{size}px;'
+            f'background:{col};{halo}animation:{kf} {rng.uniform(2.6, 7.5):.2f}s ease-in-out '
+            f'{-rng.uniform(0, 8):.2f}s infinite"></i>')
     return f"""<style>
 .bp-stars{{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}}
+.bp-stars i{{position:absolute;display:block;border-radius:50%;will-change:opacity;}}
 @keyframes bp-drift{{from{{transform:translate3d(0,0,0)}}to{{transform:translate3d(0,-{H}px,0)}}}}
-@keyframes bp-twinkle{{0%{{opacity:.25}}55%{{opacity:1}}100%{{opacity:.5}}}}
+@keyframes bp-tw1{{0%,100%{{opacity:.25}}50%{{opacity:1}}}}
+@keyframes bp-tw2{{0%,100%{{opacity:.45}}40%{{opacity:1}}70%{{opacity:.6}}}}
+@keyframes bp-tw3{{0%,100%{{opacity:.15}}60%{{opacity:.95}}}}
 {''.join(css)}
-@media (prefers-reduced-motion: reduce){{.bp-stars div{{animation:none !important}}}}
-</style><div class="bp-stars">{''.join(divs)}</div>"""
+@media (prefers-reduced-motion: reduce){{.bp-stars div,.bp-stars i{{animation:none !important}}}}
+</style><div class="bp-stars">{''.join(divs)}{''.join(stars)}</div>"""
 
 
 def _sphere(n: int, rot: float, tilt: float):

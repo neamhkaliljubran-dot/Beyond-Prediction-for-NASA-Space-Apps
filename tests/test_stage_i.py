@@ -84,12 +84,12 @@ def test_presentation_journey_and_text():
     assert at.button[0].label.startswith("How do relationships between ENSO variability")
     at.button[0].click().run()
     assert not at.exception
-    heads = [h.value for h in at.subheader]
-    order = ["The hypothesis — and its honest test", "The equation — discovered, frozen and tested",
-             "What the real data show", "The dynamic scientific network", "Four scientific answers"]
-    pos = [next(i for i, h in enumerate(heads) if h == s) for s in order]
-    assert pos == sorted(pos), heads
     md = " ".join(m.value for m in at.markdown)
+    order = ["The hypothesis", "The equation", "What the real data show", "The dynamic scientific network",
+             "Four scientific answers"]
+    pos = [md.index(f"<h2 class='bp-title'>{s}</h2>") for s in order]
+    assert pos == sorted(pos), pos
+    assert md.index("<h2 class='bp-title'>Four scientific answers</h2>") < md.index("<div class='bp-quote'>")
     assert "“The universe whispers in patterns. Discovery begins when we learn to listen.”" in md
     assert "PYRAMID" not in md.upper().replace("PYRAMID_", "")
     assert "CC BY 4.0" in md and "Matilda" in md
