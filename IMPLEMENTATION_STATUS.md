@@ -112,6 +112,11 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
   scored 0.64 → no demonstrated benefit from the month-specific slopes. Worked example Nov 2020 reproduced
   from raw files. App Output 2 tab is live.
 
+## IOD sensitivity (optional, `scripts/run_iod_sensitivity.py`)
+- NOAA PSL HadISST1.1 DMI; host psl.noaa.gov added; re-anomalised 1998–2019; 3-month centred mean.
+- RONI associations persist after controlling for DMI except R2 SON (weakens). Adding DMI to the headline
+  equation did not improve validation RMSE. See docs/IOD_SENSITIVITY.md.
+
 ## Open issues
 - Main regions use the 1998–2024 climatology (overlaps test). Training-only regions (1998–2013) give
   nearly identical associations. Regions use the full period's climatology (annual cycle only, not ENSO); a held-out period

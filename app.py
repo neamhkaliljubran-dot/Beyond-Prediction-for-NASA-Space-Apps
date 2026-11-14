@@ -329,8 +329,9 @@ if st.session_state.get("ran"):
             "- About 27 years of satellite rainfall contain few ENSO events; sliding-window "
             "estimates will be noisy.\n"
             "- IMERG 1998 – May 2000 is TRMM-era input; NASA documents specific caveats.\n"
-            "- The Indian Ocean Dipole co-varies with ENSO and strongly affects Indonesian rainfall "
-            "in Sep–Nov; until it is included, associations may partly reflect the IOD.\n"
+            "- The Indian Ocean Dipole co-varies with ENSO (r ≈ 0.5 in SON). A DMI sensitivity check "
+            "(docs/IOD_SENSITIVITY.md) found the JJA, R1/R3 SON and R3 DJF RONI associations persist after "
+            "controlling for DMI; R2 SON weakens. DMI is not part of the selected equation.\n"
             "- Correlation and regression results describe association, not causation.\n"
             "- Recent ENSO values are provisional and may be revised by CPC.")
     with t3:

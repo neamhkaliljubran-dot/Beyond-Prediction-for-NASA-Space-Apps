@@ -1,0 +1,27 @@
+{
+  "built_utc": "2026-11-14T21:18:48+00:00",
+  "source_url": "https://psl.noaa.gov/gcos_wgsp/Timeseries/Data/dmi.had.long.data",
+  "sha256": "42c1000e221addacac4451b8b9ddfbc5ee732b99ee69b0be5105e69ebe881e05",
+  "file_header": [
+    "DMI HadISST1.1",
+    "Created Sat Jul 25 13:56:30 MDT 2026",
+    "using SST anomaly 10S:10N,50E-70E minus 10S:0,90E-110E area averaged",
+    "Timeseries output created at NOAA PSL",
+    "https://psl.noaa.gov/gcos_wgsp/timeseries/DMI",
+    "Preliminary."
+  ],
+  "definition_page_status": "landing page linked in file returned HTTP 404",
+  "base_period": "not stated in file; re-anomalised against 1998-2019 calendar-month means",
+  "temporal_alignment": "centred 3-month mean (t-1..t+1), matching RONI's construction",
+  "permissions": "public NOAA PSL data; host psl.noaa.gov added to the environment allowlist",
+  "period_used": [
+    "1998-01",
+    "2019-12"
+  ],
+  "test_period_used": false,
+  "headline_validation_rmse_2014_2019": {
+    "frozen": 55.08657349969636,
+    "frozen+DMI": 55.93937091911351
+  },
+  "results_file": "data/results/iod_sensitivity.csv"
+}
