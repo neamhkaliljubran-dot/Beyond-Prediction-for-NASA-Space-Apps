@@ -15,7 +15,7 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
 | D | Full period 1998-01..2025-09 (333 granules, 5.80 GiB transfer) | DONE |
 | E | Indonesian territory mask + IMERG-derived regions R1–R3 + regional series | DONE |
 | F | Anomalies + season/lag/window associations, autocorrelation-aware, FDR | DONE (exploratory; see docs/STAGE_F_FINDINGS.md) |
-| G | (NEXT, after review) Dynamic association network from computed metrics | pending |
+| G | Dynamic association network from computed metrics | DONE (docs/STAGE_G_NETWORK.md) |
 | H | Interpretable equation search, time-blocked validation vs baselines | DONE (docs/STAGE_H_EQUATION.md) |
 | I | Candidate hypotheses from computed evidence | pending |
 | J | Integrate outputs into Streamlit, end-to-end tests, docs | pending |
@@ -116,6 +116,17 @@ OBSERVED DATA · PUBLISHED KNOWLEDGE · COMPUTATIONAL RESULT · CANDIDATE HYPOTH
 - NOAA PSL HadISST1.1 DMI; host psl.noaa.gov added; re-anomalised 1998–2019; 3-month centred mean.
 - RONI associations persist after controlling for DMI except R2 SON (weakens). Adding DMI to the headline
   equation did not improve validation RMSE. See docs/IOD_SENSITIVITY.md.
+
+## Stage G — network (`scripts/build_network.py`)
+- Skill metric defined and verified (`scripts/verify_stage_h_metrics.py`): R3-SON 0.5922 vs linear lag 0
+  0.6420 on identical 16 test months and baseline; frozen selection unchanged.
+- Edges copied from Stage F (48 full-period + 576 window ENSO edges) plus exploratory region–region
+  edges; status and pattern rules fixed in code. Tests confirm every ENSO edge matches Stage F output and
+  that the app's season/lag/window/region-link controls change the displayed edges (Streamlit AppTest).
+- Findings: supported ENSO edges at lag 0: DJF 1 (R3), MAM 0, JJA 3, SON 3; 0 divergent patterns;
+  DJF spatial decoupling of R3; R2-DJF positive in recent windows but no detectable change.
+
+## NEXT: Stage I (hypotheses) + integrated answer — paused for review with the team.
 
 ## Open issues
 - Main regions use the 1998–2024 climatology (overlaps test). Training-only regions (1998–2013) give

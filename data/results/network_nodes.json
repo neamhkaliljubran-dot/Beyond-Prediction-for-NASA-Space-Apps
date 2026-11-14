@@ -1,0 +1,52 @@
+{
+  "built_utc": "2026-11-14T21:25:14+00:00",
+  "nodes": {
+    "ENSO": {
+      "label": "ENSO (RONI, degC)",
+      "pos": [
+        146.0,
+        7.0
+      ],
+      "note": "schematic position; RONI is a Pacific SST index"
+    },
+    "R1": {
+      "label": "R1 rainfall anomaly (mm/month)",
+      "pos": [
+        118.16,
+        -3.76
+      ],
+      "area_share": 0.5373134476145602
+    },
+    "R2": {
+      "label": "R2 rainfall anomaly (mm/month)",
+      "pos": [
+        106.19,
+        1.15
+      ],
+      "area_share": 0.2759431169389048
+    },
+    "R3": {
+      "label": "R3 rainfall anomaly (mm/month)",
+      "pos": [
+        130.93,
+        -2.61
+      ],
+      "area_share": 0.18674343544653502
+    }
+  },
+  "stage_h_notes": {
+    "R1-DJF": "no validated ENSO equation (validation chose climatology)",
+    "R1-MAM": "validated equation (linear+tendency@lag0); held-out skill vs climatology -0.04, linear lag-0 -0.06",
+    "R1-JJA": "no validated ENSO equation (validation chose persistence)",
+    "R1-SON": "validated equation (linear+persistence@lag0); held-out skill vs climatology 0.69, linear lag-0 0.61",
+    "R2-DJF": "no validated ENSO equation (validation chose climatology)",
+    "R2-MAM": "no validated ENSO equation (validation chose climatology)",
+    "R2-JJA": "no validated ENSO equation (validation chose persistence)",
+    "R2-SON": "no validated ENSO equation (validation chose persistence)",
+    "R3-DJF": "no validated ENSO equation (validation chose climatology)",
+    "R3-MAM": "no validated ENSO equation (validation chose persistence)",
+    "R3-JJA": "no validated ENSO equation (validation chose persistence)",
+    "R3-SON": "validated equation (month-varying slope@lag0); held-out skill vs climatology 0.59, linear lag-0 0.64"
+  },
+  "rules": "Stage G: dynamic association network built only from computed Stage F metrics.\n\nNodes\n  ENSO   RONI (degC), NOAA CPC, Nino-3.4 based, relative to the tropical mean.\n  R1-R3  IMERG-derived Indonesian rainfall regions (main k=3 regions), anomaly mm/month.\n\nEdges (each row of data/results/network_edges.csv is one computed statistic)\n  ENSO->Ri  Pearson r between RONI centred on month t and rainfall anomaly in month t+lag,\n            for rainfall months in the season and time window.\n  Ri--Rj    Pearson r between same-month rainfall anomalies of two regions (season, window).\n\nEdge status (rules fixed in this module):\n  full discovery period (1998-2019), ENSO edges: \"supported\" if BH q < 0.05 within the\n      48-test family (surrogate p); otherwise \"inconclusive\".\n  region-region edges and rolling windows: \"CI excludes 0\" if the 95% block-bootstrap CI\n      excludes zero, otherwise \"inconclusive\". Windows overlap and are NOT independent tests.\n\nPattern labels across the 12 rolling windows (per edge, season, lag):\n  recurring      same sign in all windows AND CI excludes 0 in >= 9 of 12 windows\n  weak-recurring same sign in all windows, CI excludes 0 in fewer than 9 windows\n  divergent      CI excludes 0 with a positive r in some window and a negative r in another\n  sign-variable  sign changes, but never with CI excluding 0 on both sides (inconclusive)\nNone of these labels is a causal or topological statement.\n"
+}

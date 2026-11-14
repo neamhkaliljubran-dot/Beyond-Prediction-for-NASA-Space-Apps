@@ -1,0 +1,81 @@
+{
+  "definition": "Verify Stage H test metrics: identical observations and baseline for every compared model.\n\nMSESS (mean-squared-error skill score vs climatology), per target:\n    MSESS = 1 - sum_i (y_i - yhat_i)^2 / sum_i (y_i - 0)^2\nwhere y_i is the observed rainfall anomaly (mm/month) in test month i relative to the\n1998-01..2019-12 calendar-month climatology C(m), and the climatology baseline predicts\nanomaly 0 (i.e. P = C(m)). All models are fitted on 1998-01..2019-12 and scored on the\nsame test months. This script does not re-select anything; it recomputes and asserts.",
+  "results": {
+    "R3-SON": {
+      "n_test": 16,
+      "months": [
+        "2020-09",
+        "2020-10",
+        "2020-11",
+        "2021-09",
+        "2021-10",
+        "2021-11",
+        "2022-09",
+        "2022-10",
+        "2022-11",
+        "2023-09",
+        "2023-10",
+        "2023-11",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2025-09"
+      ],
+      "sse_climatology": 76178.43128187399,
+      "month-varying slope@lag0": {
+        "sse": 31069.228080430585,
+        "msess": 0.5921519049733537
+      },
+      "linear@lag0": {
+        "sse": 27274.296396600133,
+        "msess": 0.6419682587623746
+      },
+      "climatology": {
+        "sse": 76178.43128187399,
+        "msess": 0.0
+      },
+      "persistence": {
+        "sse": 40164.86578504816,
+        "msess": 0.47275278436187684
+      }
+    },
+    "R1-SON": {
+      "n_test": 16,
+      "months": [
+        "2020-09",
+        "2020-10",
+        "2020-11",
+        "2021-09",
+        "2021-10",
+        "2021-11",
+        "2022-09",
+        "2022-10",
+        "2022-11",
+        "2023-09",
+        "2023-10",
+        "2023-11",
+        "2024-09",
+        "2024-10",
+        "2024-11",
+        "2025-09"
+      ],
+      "sse_climatology": 70133.9897869401,
+      "linear+persistence@lag0": {
+        "sse": 21879.360635832585,
+        "msess": 0.6880348501161869
+      },
+      "linear@lag0": {
+        "sse": 27229.239151502436,
+        "msess": 0.6117540263398378
+      },
+      "climatology": {
+        "sse": 70133.9897869401,
+        "msess": 0.0
+      },
+      "persistence": {
+        "sse": 25739.958075646813,
+        "msess": 0.6329888239091748
+      }
+    }
+  }
+}

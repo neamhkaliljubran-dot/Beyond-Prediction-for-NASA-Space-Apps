@@ -15,6 +15,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from beyond_prediction import enso
+from beyond_prediction import network as gnet
 from beyond_prediction.provenance import DATA, read_json
 from beyond_prediction.visuals import PYRAMID_HTML, walker_schematic
 
@@ -31,6 +32,11 @@ IMERG_PROV = DATA / "provenance" / "imerg_verification.json"
 REGIONS_PROV = DATA / "provenance" / "regions.json"
 REGION_MAP = Path(__file__).parent / "docs" / "figures" / "regions_map.png"
 RESULTS = DATA / "results"
+
+
+@st.cache_data
+def load_edges() -> pd.DataFrame:
+    return pd.read_csv(RESULTS / "network_edges.csv")
 
 
 @st.cache_data
@@ -100,7 +106,8 @@ if st.session_state.get("ran"):
          (RESULTS / "associations_primary.csv").exists()),
         ("Equation discovery with leakage-free time-blocked validation vs baselines",
          (RESULTS / "stage_h_test.json").exists()),
-        ("Dynamic association network across seasons and time windows", False),
+        ("Dynamic association network across seasons and time windows",
+         (RESULTS / "network_edges.csv").exists()),
         ("Candidate hypotheses with pre-stated selection criteria and validation plan", False),
     ]
     for i, (label, done) in enumerate(steps, 1):
@@ -183,10 +190,69 @@ if st.session_state.get("ran"):
             with st.expander("All 12 targets (validation choice and test skill)"):
                 st.dataframe(allt.round(2), use_container_width=True, hide_index=True)
     with o3:
-        st.warning(pending)
-        st.markdown("*Planned encoding:* edge colour = sign, width = |r|, hover = confidence "
-                    "interval, style = significance; sliders over season and time window. "
-                    "It is an association network — not a causal graph or topological proof.")
+        if not (RESULTS / "network_edges.csv").exists():
+            st.warning("Not yet computed (Stage G).")
+        else:
+            edges = load_edges()
+            meta = read_json(RESULTS / "network_nodes.json")
+            st.markdown(
+                "**COMPUTATIONAL RESULT — exploratory association network (G-NETS, proposed framework).** "
+                "Nodes: ENSO (RONI, °C) and three IMERG-derived rainfall regions placed at their "
+                "geographic centroids (ENSO's position is schematic). Each edge is one computed Pearson "
+                "correlation from Stage F (ENSO→region: RONI vs rainfall anomaly *lag* months later) or "
+                "between two regions' same-month rainfall anomalies. Edges show statistical association "
+                "only — not causation, and not a topological invariant.")
+            c1, c2, c3 = st.columns([2, 1, 2])
+            n_season = c1.radio("Season (rainfall months)", ["DJF", "MAM", "JJA", "SON"], index=3,
+                                horizontal=True, key="net_season")
+            n_lag = c2.selectbox("Lag: rainfall follows ENSO by (months)", [0, 1, 2, 3], key="net_lag")
+            wins = [gnet.FULL] + sorted(w for w in edges.window.unique() if w != gnet.FULL)
+            n_win = c3.selectbox("Time window", wins, key="net_window",
+                                 help="11-year rolling windows overlap; they are not independent tests.")
+            show_rr = st.checkbox("Show region–region rainfall links (lag 0)", value=True, key="net_rr")
+            sel_e = edges[(edges.season == n_season) & (edges.window == n_win) &
+                          (((edges.kind == "ENSO-region") & (edges.lag == n_lag)) |
+                           ((edges.kind == "region-region") & show_rr))]
+            pos = {k: tuple(v["pos"]) for k, v in meta["nodes"].items() if k != "ENSO"}
+            st.plotly_chart(gnet.figure(sel_e, pos, meta["stage_h_notes"]), use_container_width=True,
+                            key=f"net_fig_{n_season}_{n_lag}_{n_win}_{show_rr}")
+            st.caption("Edge width ∝ |r|; label = r; hover for 95% CI, n, BH q and pattern. A positive ENSO→region "
+                       "r would mean more rain when RONI is high; none is statistically supported in the full period. "
+                       "Region–region links share variability that may itself be partly ENSO-driven.")
+            if n_win != gnet.FULL:
+                st.warning(f"Window {n_win}: about {int(sel_e.n.min())} monthly pairs per edge; status uses "
+                           "the bootstrap CI only (no multiple-testing correction). Treat as exploratory.")
+            st.markdown("**Link to the Stage H equation (held-out validation status):**")
+            for reg in ["R1", "R2", "R3"]:
+                note = meta["stage_h_notes"].get(f"{reg}-{n_season}", "")
+                flag = " ← headline equation" if f"{reg}-{n_season}" == (sel or {}).get("headline") else ""
+                st.markdown(f"- {reg}–{n_season}: {note}{flag}")
+            shown = sel_e[["kind", "source", "target", "lag", "window", "r", "ci_lo", "ci_hi", "n",
+                           "q_bh", "status", "pattern"]].rename(columns={"q_bh": "BH q (full period)"})
+            st.dataframe(shown.round(3), use_container_width=True, hide_index=True, key="net_table")
+
+            st.markdown("**How the ENSO→region edges change across rolling windows** "
+                        f"({n_season}, lag {n_lag}; ● = 95% CI excludes 0)")
+            roll_e = edges[(edges.kind == "ENSO-region") & (edges.season == n_season) &
+                           (edges.lag == n_lag) & (edges.window != gnet.FULL)]
+            piv = roll_e.pivot(index="target", columns="window", values="r")
+            excl = roll_e.assign(x=(roll_e.ci_lo > 0) | (roll_e.ci_hi < 0)).pivot(
+                index="target", columns="window", values="x")
+            txt = piv.round(2).astype(str) + excl.map(lambda b: " ●" if b else "")
+            hm2 = go.Figure(go.Heatmap(z=piv.values, x=piv.columns, y=piv.index, text=txt.values,
+                                       texttemplate="%{text}", zmin=-1, zmax=1, colorscale="RdBu",
+                                       colorbar=dict(title="r")))
+            hm2.update_layout(height=230, margin=dict(l=10, r=10, t=10, b=10))
+            st.plotly_chart(hm2, use_container_width=True, key=f"net_hm_{n_season}_{n_lag}")
+            pats = pd.read_csv(RESULTS / "network_patterns.csv")
+            pt = pats[(pats.kind == "ENSO-region") & (pats.season == n_season) & (pats.lag == n_lag)]
+            st.dataframe(pt[["target", "pattern", "windows_ci_excludes_0", "n_windows", "r_min", "r_max"]].round(2),
+                         use_container_width=True, hide_index=True, key="net_patterns")
+            st.caption("Pattern rules (fixed in beyond_prediction/network.py): recurring = same sign in all 12 "
+                       "windows and CI excludes 0 in ≥ 9; weak-recurring = same sign, fewer; divergent = CI "
+                       "excludes 0 with opposite signs in different windows; sign-variable = sign changes "
+                       "without that (inconclusive). An inconclusive or absent edge is not evidence of no "
+                       "relationship.")
 
     # ------------------------------------------------------------ evidence
     st.divider()

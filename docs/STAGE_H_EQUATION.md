@@ -110,6 +110,26 @@ P_R3(t)  = C_R3(m) + ΔP_R3(t)
 - R2-SON: 0.20.
 - **R3-DJF:** the linear lag-0 model scored 0.33 on test, but validation chose climatology. We report the validation decision and treat the test score as an observation, not as a reason to re-select.
 
+## 3b. Skill metric definition and verification
+For each target, the skill score is
+
+MSESS = 1 − Σᵢ (yᵢ − ŷᵢ)² / Σᵢ (yᵢ − 0)²
+
+- **yᵢ:** the observed rainfall anomaly (mm/month) in test month i, relative to the 1998-01..2019-12 calendar-month climatology C(m).
+- **ŷᵢ:** the model's predicted anomaly.
+- **Baseline:** the climatology forecast, ŷ = 0 (that is, P̂ = C(m)).
+- **Reading it:** 1 is perfect; 0 means no better than climatology; negative means worse.
+- **Fitting:** every model is fitted on 1998-01..2019-12 and scored on the same test months.
+
+`scripts/verify_stage_h_metrics.py` recomputes the comparison from scratch and *asserts* that it uses identical test months, observations and baseline. Output: `data/results/stage_h_metric_verification.json`.
+
+| Target | n | Selected model | Linear lag 0 | Persistence | Climatology |
+|---|---|---|---|---|---|
+| R3-SON | 16 (Sep 2020 – Sep 2025) | 0.5922 (month-varying slope) | **0.6420** | 0.4728 | 0 |
+| R1-SON | 16 | 0.6880 (linear+persistence) | 0.6118 | 0.6330 | 0 |
+
+For R3-SON, the frozen selected model scores below the simpler linear lag-0 model on the test period. We keep the frozen selection unchanged and report the simpler model's better test score alongside it.
+
 ## 4. Worked example (real data, test period; chosen as the test month with the largest |RONI|)
 Month: **November 2020**, region R3 (training-derived k = 3 regions).
 
